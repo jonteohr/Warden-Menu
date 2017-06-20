@@ -25,6 +25,11 @@ int hnsActive = 0;
 int freedayActive = 0;
 int wardayActive = 0;
 
+// Track number of games played
+int hnsTimes = 0;
+int freedayTimes = 0;
+int warTimes = 0;
+
 // ## CVars ##
 ConVar cvVersion;
 // Convars to add different menu entries
@@ -47,7 +52,7 @@ public Plugin:myinfo =
 
 public OnPluginStart() {
 	
-	LoadTranslations("wmenu.phrases.txt");
+	LoadTranslations("cmenu.phrases.txt");
 	SetGlobalTransTarget(LANG_SERVER);
 	
 	AutoExecConfig(true, "cmenu");
@@ -256,6 +261,7 @@ public void abortGames() {
 public void initHns(int client) {
 	PrintHintTextToAll("%t", "HnS Begun");
 	hnsActive = 1;
+	hnsTimes++;
 	/*
 	* Give CT's Godmode during this game to prevent rebels.
 	*/
@@ -264,6 +270,7 @@ public void initHns(int client) {
 public void initFreeday(int client) {
 	PrintHintTextToAll("%t", "Freeday Begun");
 	freedayActive = 1;
+	freedayTimes++;
 	/*
 	* What to do to the server here??
 	*/
@@ -272,6 +279,7 @@ public void initFreeday(int client) {
 public void initWarday(int client) {
 	PrintHintTextToAll("%t", "Warday Begun");
 	wardayActive = 1;
+	warTimes++;
 	/*
 	* Same here. Anything to do to the server?
 	*/
