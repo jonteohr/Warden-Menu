@@ -12,6 +12,7 @@
 #include <eskojbwarden>
 
 #define VERSION "1.0"
+
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
 #define CHOICE3 "#choice3"
@@ -140,7 +141,11 @@ public Action sm_abortgames(int client, int args) {
 
 public void openMenu(int client) {
 	Menu menu = new Menu(MenuHandler1, MENU_ACTIONS_ALL);
-	menu.SetTitle("%t", "Menu Title");
+	
+	char title[64];
+	Format(title, sizeof(title), "%t", "Menu Title");
+	
+	menu.SetTitle(title);
 	if(cvFreeday.IntValue == 1) {
 		menu.AddItem(CHOICE1, "Choice 1");
 	}
@@ -150,6 +155,7 @@ public void openMenu(int client) {
 	if(cvWarday.IntValue == 1) {
 		menu.AddItem(CHOICE3, "Choice 3");
 	}
+	menu.AddItem(CHOICE4, "Choice 4");
 	menu.Display(client, 20);
 }
 
@@ -259,30 +265,61 @@ public void abortGames() {
 }
 
 public void initHns(int client) {
-	PrintHintTextToAll("%t", "HnS Begun");
-	hnsActive = 1;
-	hnsTimes++;
-	/*
-	* Give CT's Godmode during this game to prevent rebels.
-	*/
+	if(cvHnSTimes.IntValue == 0) {
+		PrintHintTextToAll("%t", "HnS Begun");
+		hnsActive = 1;
+		IsGameActive = true;
+	} else if(cvHnSTimes.IntValue != 0 && hnsTimes >= cvHnSTimes.IntValue) {
+		
+		CPrintToChat(client, "%s %t", prefix, "Too many hns", hnsTimes, cvHnSTimes.IntValue);
+		
+	} else if(cvHnSTimes.IntValue != 0 && hnsTimes < cvHnSTimes.IntValue) {
+		PrintHintTextToAll("%t", "HnS Begun");
+		hnsActive = 1;
+		IsGameActive = true;
+		hnsTimes++;
+	}
 }
 
 public void initFreeday(int client) {
-	PrintHintTextToAll("%t", "Freeday Begun");
-	freedayActive = 1;
-	freedayTimes++;
+	
 	/*
 	* What to do to the server here??
 	*/
+	
+	if(cvFreedayTimes.IntValue == 0) {
+		PrintHintTextToAll("%t", "Freeday Begun");
+		freedayActive = 1;
+		IsGameActive = true;
+	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes >= cvFreedayTimes.IntValue) {
+		CPrintToChat(client, "%s %t", prefix, "Too many freedays", freedayTimes, cvFreedayTimes.IntValue);
+	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes < cvFreedayTimes.IntValue) {
+		PrintHintTextToAll("%t", "Freeday Begun");
+		freedayActive = 1;
+		IsGameActive = true;
+		freedayTimes++;
+	}
 }
 
 public void initWarday(int client) {
-	PrintHintTextToAll("%t", "Warday Begun");
-	wardayActive = 1;
-	warTimes++;
+	
 	/*
 	* Same here. Anything to do to the server?
 	*/
+	
+	if(cvWardayTimes.IntValue == 0) {
+		PrintHintTextToAll("%t", "Warday Begun");
+		wardayActive = 1;
+		IsGameActive = true;
+	} else if(cvWardayTimes.IntValue != 0 && warTimes >= cvWardayTimes.IntValue) {
+		CPrintToChat(client, "%s %t", "Too many wardays", warTimes, cvWardayTimes.IntValue);
+	} else if(cvWardayTimes.IntValue != 0 && warTimes < cvWardayTimes.IntValue) {
+		PrintHintTextToAll("%t", "Warday Begun");
+		wardayActive = 1;
+		IsGameActive = true;
+		warTimes++;
+	}
+	
 }
 
 public void error(int client, int errorCode) {
