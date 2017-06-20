@@ -1,0 +1,99 @@
+"Phrases"
+{
+	"Not Alive"
+	{
+		"en"	"You are not alive."
+		"sv"	"Du lever inte."
+	}
+	
+	"Not CT"
+	{
+		"en"	"You're not a CT."
+		"sv"	"Du är inte CT."
+	}
+	
+	"Not Warden"
+	{
+		"en"	"You're not warden."
+		"sv"	"Du är inte warden."
+	}
+	
+	"Warden Died"
+	{
+		"en"	"Warden died, aborting all games."
+		"sv"	"Warden dog, avbryter samtliga spel."
+	}
+	
+	"Menu Title"
+	{
+		"en"	"Warden Menu"
+		"sv"	"Warden Meny"
+	}
+	
+	"Choice 1"
+	{
+		"en"	"Freeday"
+		"sv"	"Freeday"
+	}
+	
+	"Choice 2"
+	{
+		"en"	"Hide n' Seek"
+		"sv"	"Hide n' Seek"
+	}
+	
+	"Choice 3"
+	{
+		"en"	"Warday"
+		"sv"	"Warday"
+	}
+	
+	"Choice 4"
+	{
+		"en"	"Abort game"
+		"sv"	"Avbryt nuvarande spel"
+	}
+	
+	"Cannot Exec Game"
+	{
+		"en"	"Cannot select a new game since there's already a game running."
+		"se"	"Kan inte välja en ny lek eftersom det redan är en annan lek igång!"
+	}
+	
+	"Admin Aborted"
+	{
+		"#format"	"{1:N}"
+		"en"	"{1} aborted the current command from warden!"
+		"sv"	"{1} avbröt det nuvarande kommandet från warden!"
+	}
+	
+	"Admin Abort Denied"
+	{
+		"en"	"You cannot abort the current game because there's no game running at this time."
+		"se"	"Du kan inte avbryta det nuvarande spelet då inget spel har valts ännu."
+	}
+	
+	"HnS Begun"
+	{
+		"en"	"The warden has selected Hide and Seek for this round!"
+		"sv"	"Warden valde att leka Hide and Seek för denna runda!"
+	}
+	
+	"Freeday Begun"
+	{
+		"en"	"The warden has selected Freeday for this round!"
+		"sv"	"Warden valde att ha en Freeday för denna runda!"
+	}
+	
+	"Warday Begun"
+	{
+		"en"	"The warden has selected Warday for this round!"
+		"sv"	"Warden valde att ha en Warday för denna runda!"
+	}
+	
+	"No Rebel HnS"
+	{
+		"en"	"{red}You cannot become a rebel during Hide and Seek!"
+		"sv"	"{red}Du kan inte rebella under Hide and Seek!"
+	}
+}
