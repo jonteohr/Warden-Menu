@@ -37,6 +37,7 @@ There's also some other functions in the menu that the warden can take advantage
 |`sm_cmenu_gravity_rounds`|**1**|How many times is a Gravity Freeday allowed per map?\nSet to 0 for unlimited.|
 |`sm_cmenu_noblock`|**1**|Add an option for toggling noblock in the menu? 0 = Disable. 1 = Enable.|
 |`sm_cmenu_noblock_standard`|**1**|What should the noblock rules be as default on start of each round? This should have the same value as your mp_solid_teammates cvar in server.cfg. 1 = Solid teammates. 0 = No block|
+|`sm_cmenu_auto_open`|**1**|Automatically open the menu when a user becomes warden? 0 = Disable. 1 = Enable.|
 
 ## Commands
 | Command   | Description   | Flag     |
