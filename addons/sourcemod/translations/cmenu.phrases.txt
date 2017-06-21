@@ -50,6 +50,18 @@
 	
 	"Choice 4"
 	{
+		"en"	"Gravity Freeday"
+		"sv"	"Gravity Freeday"
+	}
+	
+	"Choice 5"
+	{
+		"en"	"Toggle noblock"
+		"sv"	""
+	}
+	
+	"Choice 8"
+	{
 		"en"	"Abort game"
 		"sv"	"Avbryt nuvarande spel"
 	}
@@ -91,6 +103,12 @@
 		"sv"	"Warden valde att ha en Warday för denna runda!"
 	}
 	
+	"Gravday Begun"
+	{
+		"en"	"The warden has selected Gravity Freeday for this round!"
+		"sv"	"Warden valde att ha en Gravity Freeday för denna runda!"
+	}
+	
 	"No Rebel HnS"
 	{
 		"en"	"{red}You cannot become a rebel during Hide and Seek!"
@@ -116,5 +134,30 @@
 		"#format"	"{1:d},{2:d}"
 		"en"	"There's already been {1} rounds of Wardays. There's only {2} rounds of Wardays allowed per map!"
 		"sv"	"Det har redan varit {1} rundor av Wardays. Det kan bara vara {2} rundor av Wardays per map!"
+	}
+	
+	"Too many gravdays"
+	{
+		"#format"	"{1:d},{2:d}"
+		"en"	"There's already been {1} rounds of Gravity Freedays. There's only {2} rounds of Gravity Freedays allowed per map!"
+		"sv"	"Det har redan varit {1} rundor av Gravity Freedays. Det kan bara vara {2} rundor av Gravity Freedays per map!"
+	}
+	
+	"Failed to abort Server"
+	{
+		"en"	"Tried to abort current game but there's no game running."
+		"sv"	"Försökte avbryta nuvarande lek men det är ingen lek som körs!"
+	}
+	
+	"Noblock off"
+	{
+		"en"	"The warden has disabled noblock."
+		"sv"	"Warden har stängt av noblock."
+	}
+	
+	"Noblock on"
+	{
+		"en"	"The warden has activated noblock."
+		"sv"	"Warden har aktiverat noblock."
 	}
 }
