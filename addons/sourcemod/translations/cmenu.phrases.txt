@@ -9,13 +9,13 @@
 	"Not CT"
 	{
 		"en"	"You're not a CT."
-		"sv"	"Du är inte CT."
+		"sv"	"Du Ã¤r inte CT."
 	}
 	
 	"Not Warden"
 	{
 		"en"	"You're not warden."
-		"sv"	"Du är inte warden."
+		"sv"	"Du Ã¤r inte warden."
 	}
 	
 	"Warden Died"
@@ -50,6 +50,18 @@
 	
 	"Choice 4"
 	{
+		"en"	"Gravity Freeday"
+		"sv"	"Gravity Freeday"
+	}
+	
+	"Choice 5"
+	{
+		"en"	"Toggle noblock"
+		"sv"	""
+	}
+	
+	"Choice 8"
+	{
 		"en"	"Abort game"
 		"sv"	"Avbryt nuvarande spel"
 	}
@@ -57,43 +69,95 @@
 	"Cannot Exec Game"
 	{
 		"en"	"Cannot select a new game since there's already a game running."
-		"se"	"Kan inte välja en ny lek eftersom det redan är en annan lek igång!"
+		"se"	"Kan inte vÃ¤lja en ny lek eftersom det redan Ã¤r en annan lek igÃ¥ng!"
 	}
 	
 	"Admin Aborted"
 	{
 		"#format"	"{1:N}"
 		"en"	"{1} aborted the current command from warden!"
-		"sv"	"{1} avbröt det nuvarande kommandet från warden!"
+		"sv"	"{1} avbrÃ¶t det nuvarande kommandet frÃ¥n warden!"
 	}
 	
 	"Admin Abort Denied"
 	{
 		"en"	"You cannot abort the current game because there's no game running at this time."
-		"se"	"Du kan inte avbryta det nuvarande spelet då inget spel har valts ännu."
+		"se"	"Du kan inte avbryta det nuvarande spelet dÃ¥ inget spel har valts Ã¤nnu."
 	}
 	
 	"HnS Begun"
 	{
 		"en"	"The warden has selected Hide and Seek for this round!"
-		"sv"	"Warden valde att leka Hide and Seek för denna runda!"
+		"sv"	"Warden valde att leka Hide and Seek fÃ¶r denna runda!"
 	}
 	
 	"Freeday Begun"
 	{
 		"en"	"The warden has selected Freeday for this round!"
-		"sv"	"Warden valde att ha en Freeday för denna runda!"
+		"sv"	"Warden valde att ha en Freeday fÃ¶r denna runda!"
 	}
 	
 	"Warday Begun"
 	{
 		"en"	"The warden has selected Warday for this round!"
-		"sv"	"Warden valde att ha en Warday för denna runda!"
+		"sv"	"Warden valde att ha en Warday fÃ¶r denna runda!"
+	}
+	
+	"Gravday Begun"
+	{
+		"en"	"The warden has selected Gravity Freeday for this round!"
+		"sv"	"Warden valde att ha en Gravity Freeday fÃ¶r denna runda!"
 	}
 	
 	"No Rebel HnS"
 	{
 		"en"	"{red}You cannot become a rebel during Hide and Seek!"
 		"sv"	"{red}Du kan inte rebella under Hide and Seek!"
+	}
+	
+	"Too many hns"
+	{
+		"#format"	"{1:d},{2:d}"
+		"en"	"There's already been {1} rounds of HnS. There's only {2} rounds of HnS allowed per map!"
+		"sv"	"Det har redan varit {1} rundor av HnS. Det kan bara vara {2} rundor av HnS per map!"
+	}
+	
+	"Too many freedays"
+	{
+		"#format"	"{1:d},{2:d}"
+		"en"	"There's already been {1} rounds of Freedays. There's only {2} rounds of Freedays allowed per map!"
+		"sv"	"Det har redan varit {1} rundor av Freedays. Det kan bara vara {2} rundor av Freedays per map!"
+	}
+	
+	"Too many wardays"
+	{
+		"#format"	"{1:d},{2:d}"
+		"en"	"There's already been {1} rounds of Wardays. There's only {2} rounds of Wardays allowed per map!"
+		"sv"	"Det har redan varit {1} rundor av Wardays. Det kan bara vara {2} rundor av Wardays per map!"
+	}
+	
+	"Too many gravdays"
+	{
+		"#format"	"{1:d},{2:d}"
+		"en"	"There's already been {1} rounds of Gravity Freedays. There's only {2} rounds of Gravity Freedays allowed per map!"
+		"sv"	"Det har redan varit {1} rundor av Gravity Freedays. Det kan bara vara {2} rundor av Gravity Freedays per map!"
+	}
+	
+	"Failed to abort Server"
+	{
+		"en"	"Tried to abort current game but there's no game running."
+		"sv"	"FÃ¶rsÃ¶kte avbryta nuvarande lek men det Ã¤r ingen lek som kÃ¶rs!"
+	}
+	
+	"Noblock off"
+	{
+		"en"	"The warden has disabled noblock."
+		"sv"	"Warden har stÃ¤ngt av noblock."
+	}
+	
+	"Noblock on"
+	{
+		"en"	"The warden has activated noblock."
+		"sv"	"Warden har aktiverat noblock."
 	}
 }
