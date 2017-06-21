@@ -24,10 +24,22 @@
 		"sv"	"Warden dog, avbryter samtliga spel."
 	}
 	
-	"Menu Title"
+	"Days Menu Title"
+	{
+		"en"	"Days"
+		"sv"	"Dagar"
+	}
+	
+	"Warden Menu Title"
 	{
 		"en"	"Warden Menu"
 		"sv"	"Warden Meny"
+	}
+	
+	"Days Entry"
+	{
+		"en"	"Event days"
+		"sv"	"Speciella dagar"
 	}
 	
 	"Choice 1"
@@ -54,10 +66,16 @@
 		"sv"	"Gravity Freeday"
 	}
 	
-	"Choice 5"
+	"Toggle Noblock Entry"
 	{
 		"en"	"Toggle noblock"
-		"sv"	""
+		"sv"	"Noblock"
+	}
+	
+	"Leave Warden"
+	{
+		"en"	"Leave Warden"
+		"sv"	"Lämna som Warden"
 	}
 	
 	"Choice 8"

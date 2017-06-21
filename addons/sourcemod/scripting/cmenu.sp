@@ -1,18 +1,10 @@
-/*
-* ## TEAM VARIABLES ##
-* CS_TEAM_T
-* CS_TEAM_CT
-* CS_TEAM_SPECTATOR
-* CS_TEAM_NONE
-*/
-
 #include <sourcemod>
 #include <cstrike>
 #include <colors>
 #define REQUIRE_PLUGIN
 #include <eskojbwarden>
 
-#define VERSION "1.0 (004)"
+#define VERSION "1.1 (001)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -39,6 +31,7 @@ int gravTimes = 0;
 
 // ## CVars ##
 ConVar cvVersion;
+ConVar cvAutoOpen;
 // Convars to add different menu entries
 ConVar cvHnS;
 ConVar cvHnSGod;
@@ -73,19 +66,20 @@ public OnPluginStart() {
 	
 	//var = CreateConVar("cvar_name", "default_value", "description", _, true, min, true, max);
 	cvVersion = CreateConVar("sm_cmenu_version", VERSION, "Current version running. Debugging purposes only!", FCVAR_DONTRECORD); // Not visible in config
-	cvHnS = CreateConVar("sm_cmenu_hns", "1", "Add an option for Hide and Seek in the menu?\n0 = Disable. 1 = Enable.", _, true, 0.0, true, 1.0);
-	cvHnSGod = CreateConVar("sm_cmenu_hns_godmode", "1", "Makes CT's invulnerable against attacks from T's during HnS to prevent rebels.\n0 = Disable. 1 = Enable.", _, true, 0.0, true, 1.0);
+	cvHnS = CreateConVar("sm_cmenu_hns", "1", "Add an option for Hide and Seek in the menu?\n0 = Disable.\n1 = Enable.", _, true, 0.0, true, 1.0);
+	cvHnSGod = CreateConVar("sm_cmenu_hns_godmode", "1", "Makes CT's invulnerable against attacks from T's during HnS to prevent rebels.\n0 = Disable.\n1 = Enable.", _, true, 0.0, true, 1.0);
 	cvHnSTimes = CreateConVar("sm_cmenu_hns_rounds", "2", "How many times is HnS allowed per map?\nSet to 0 for unlimited.");
-	cvFreeday = CreateConVar("sm_cmenu_freeday", "1", "Add an option for a freeday in the menu?\n0 = Disable. 1 = Enable.", _, true, 0.0, true, 1.0);
+	cvFreeday = CreateConVar("sm_cmenu_freeday", "1", "Add an option for a freeday in the menu?\n0 = Disable.\n1 = Enable.", _, true, 0.0, true, 1.0);
 	cvFreedayTimes = CreateConVar("sm_cmenu_freeday_rounds", "2", "How many times is a Freeday allowed per map?\nSet to 0 for unlimited.");
-	cvWarday = CreateConVar("sm_cmenu_warday", "1", "Add an option for Warday in the menu?\n0 = Disable. 1 = Enable.", _, true, 0.0, true, 1.0);
+	cvWarday = CreateConVar("sm_cmenu_warday", "1", "Add an option for Warday in the menu?\n0 = Disable.\n1 = Enable.", _, true, 0.0, true, 1.0);
 	cvWardayTimes = CreateConVar("sm_cmenu_warday_rounds", "1", "How many times is a Warday allowed per map?\nSet to 0 for unlimited.");
-	cvGrav = CreateConVar("sm_cmenu_gravity", "1", "Add an option for a gravity freeday in the menu?\n0 = Disable. 1 = Enable.", _, true, 0.0, true, 1.0);
-	cvGravTeam = CreateConVar("sm_cmenu_gravity_team", "2", "Which team should get a special gravity on Gravity Freedays?\n0 = All teams.\n1 = Counter-Terrorists\n2 = Terorrists.", _, true, 0.0, true, 2.0);
+	cvGrav = CreateConVar("sm_cmenu_gravity", "1", "Add an option for a gravity freeday in the menu?\n0 = Disable.\n1 = Enable.", _, true, 0.0, true, 1.0);
+	cvGravTeam = CreateConVar("sm_cmenu_gravity_team", "2", "Which team should get a special gravity on Gravity Freedays?\n0 = All teams.\n1 = Counter-Terrorists.\n2 = Terorrists.", _, true, 0.0, true, 2.0);
 	cvGravStrength = CreateConVar("sm_cmenu_gravity_strength", "1.5", "What should the gravity be set to on Gravity Freedays?");
 	cvGravTimes = CreateConVar("sm_cmenu_gravity_rounds", "1", "How many times is a Gravity Freeday allowed per map?\nSet to 0 for unlimited.");
-	cvNoblock = CreateConVar("sm_cmenu_noblock", "1", "Add an option for toggling noblock in the menu?\n0 = Disable. 1 = Enable.", _, true, 0.0, true, 1.0);
-	cvNoblockStandard = CreateConVar("sm_cmenu_noblock_standard", "1", "What should the noblock rules be as default on start of each round?\nThis should have the same value as your mp_solid_teammates cvar in server.cfg.\n1 = Solid teammates. 0 = No block", _, true, 0.0, true, 1.0);
+	cvNoblock = CreateConVar("sm_cmenu_noblock", "1", "Add an option for toggling noblock in the menu?\n0 = Disable.\n1 = Enable.", _, true, 0.0, true, 1.0);
+	cvNoblockStandard = CreateConVar("sm_cmenu_noblock_standard", "1", "What should the noblock rules be as default on start of each round?\nThis should have the same value as your mp_solid_teammates cvar in server.cfg.\n1 = Solid teammates.\n0 = No block.", _, true, 0.0, true, 1.0);
+	cvAutoOpen = CreateConVar("sm_cmenu_auto_open", "1", "Automatically open the menu when a user becomes warden?\n0 = Disable.\n1 = Enable.", _, true, 0.0, true, 1.0);
 	
 	noblock = FindConVar("mp_solid_teammates");
 	
@@ -127,6 +121,14 @@ public void OnRoundEnd(Event event, const char[] name, bool dontBroadcast) {
 
 public void OnMapStart() {
 	abortGames();
+}
+
+public void EJBW_OnWardenCreatedByUser(int client) {
+	if(cvAutoOpen.IntValue == 1) {
+		openMenu(client);
+	} else {
+		PrintToServer("Skipping auto open since it's disabled in config.");
+	}
 }
 
 public Action sm_cmenu(int client, int args) {
@@ -183,10 +185,103 @@ public Action sm_noblock(int client, int args) {
 }
 
 public void openMenu(int client) {
-	Menu menu = new Menu(MenuHandler1, MENU_ACTIONS_ALL);
+	Menu menu = new Menu(WardenMenuHandler, MENU_ACTIONS_ALL);
 	
 	char title[64];
-	Format(title, sizeof(title), "%t", "Menu Title");
+	Format(title, sizeof(title), "%t", "Warden Menu Title");
+	
+	menu.SetTitle(title);
+	menu.AddItem(CHOICE1, "Choice 1");
+	if(cvNoblock.IntValue == 1) {
+		menu.AddItem(CHOICE2, "Choice 2");
+	}
+	menu.AddItem(CHOICE3, "Choice 3");
+	menu.AddItem(CHOICE8, "Choice 8");
+	menu.ExitBackButton = true;
+	menu.Display(client, 20);
+}
+
+public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param2) {
+	switch(action) {
+		case MenuAction_Start:{} // Displaying menu to client
+		case MenuAction_Display:
+		{
+			char buffer[255];
+			Format(buffer, sizeof(buffer), "%t", "Warden Menu Title");
+			Panel panel = view_as<Panel>(param2);
+			panel.SetTitle(buffer);
+		}
+		case MenuAction_Select:
+		{
+			char info[32];
+			menu.GetItem(param2, info, sizeof(info));
+			if(StrEqual(info, CHOICE1)) {
+				openDaysMenu(client);
+			}
+			if(StrEqual(info, CHOICE2)) {
+				toggleNoblock();
+			}
+			if(StrEqual(info, CHOICE3)) {
+				// Exec something
+			}
+			if(StrEqual(info, CHOICE8)) {
+				FakeClientCommand(client, "sm_uw");
+			}
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+		case MenuAction_DrawItem:
+		{
+			int style;
+			char info[32];
+			menu.GetItem(param2, info, sizeof(info), style);
+			
+			if(StrEqual(info, CHOICE1)) {
+				return ITEMDRAW_DEFAULT;
+			} else if(StrEqual(info, CHOICE2)) {
+				return ITEMDRAW_DEFAULT;
+			} else if(StrEqual(info, CHOICE8)) {
+				return ITEMDRAW_DEFAULT;
+			} else if(StrEqual(info, CHOICE3)) {
+				return ITEMDRAW_DEFAULT;
+			} else { 
+				return style;
+			}
+		}
+		case MenuAction_DisplayItem:
+		{
+			char info[32];
+			menu.GetItem(param2, info, sizeof(info));
+			
+			char display[64];
+			
+			if(StrEqual(info, CHOICE1)) {
+				Format(display, sizeof(display), "%t", "Days Entry");
+			}
+			if(StrEqual(info, CHOICE2)) {
+				Format(display, sizeof(display), "%t", "Toggle Noblock Entry");
+				return RedrawMenuItem(display);
+			}
+			if(StrEqual(info, CHOICE3)) {
+				Format(display, sizeof(display), "%t", "");
+				return RedrawMenuItem(display);
+			}
+			if(StrEqual(info, CHOICE8)) {
+				Format(display, sizeof(display), "%t", "Leave Warden");
+			}
+		}
+	}
+	
+	return 0;
+}
+
+public void openDaysMenu(int client) {
+	Menu menu = new Menu(DaysMenuHandler, MENU_ACTIONS_ALL);
+	
+	char title[64];
+	Format(title, sizeof(title), "%t", "Days Menu Title");
 	
 	menu.SetTitle(title);
 	if(cvFreeday.IntValue == 1) {
@@ -201,15 +296,12 @@ public void openMenu(int client) {
 	if(cvGrav.IntValue == 1) {
 		menu.AddItem(CHOICE4, "Choice 4");
 	}
-	if(cvNoblock.IntValue == 1) {
-		menu.AddItem(CHOICE5, "Choice 5");
-	}
 	menu.AddItem(SPACER, "Spacer");
 	menu.AddItem(CHOICE8, "Choice 8");
 	menu.Display(client, 20);
 }
 
-public int MenuHandler1(Menu menu, MenuAction action, int client, int param2) {
+public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2) {
 	switch(action) {
 		case MenuAction_Start:
 		{
@@ -218,7 +310,7 @@ public int MenuHandler1(Menu menu, MenuAction action, int client, int param2) {
 		case MenuAction_Display:
 		{
 			char buffer[255];
-			Format(buffer, sizeof(buffer), "%t", "Menu Title");
+			Format(buffer, sizeof(buffer), "%t", "Days Menu Title");
 			Panel panel = view_as<Panel>(param2);
 			panel.SetTitle(buffer);
 		}
@@ -238,9 +330,6 @@ public int MenuHandler1(Menu menu, MenuAction action, int client, int param2) {
 				}
 				if(StrEqual(info, CHOICE4)) {
 					initGrav(client);
-				}
-				if(StrEqual(info, CHOICE5)) {
-					toggleNoblock();
 				}
 			} else {
 				if(StrEqual(info, CHOICE8)) {
@@ -271,8 +360,6 @@ public int MenuHandler1(Menu menu, MenuAction action, int client, int param2) {
 				} else if(StrEqual(info, CHOICE4)) {
 					return ITEMDRAW_DISABLED;
 				} else if(StrEqual(info, CHOICE8)) {
-					return ITEMDRAW_DEFAULT;
-				} else if(StrEqual(info, CHOICE5)) {
 					return ITEMDRAW_DEFAULT;
 				} else if(StrEqual(info, SPACER)) {
 					return ITEMDRAW_SPACER;
@@ -310,10 +397,6 @@ public int MenuHandler1(Menu menu, MenuAction action, int client, int param2) {
 			}
 			if(StrEqual(info, CHOICE4)) {
 				Format(display, sizeof(display), "%t", "Choice 4");
-				return RedrawMenuItem(display);
-			}
-			if(StrEqual(info, CHOICE5)) {
-				Format(display, sizeof(display), "%t", "Choice 5");
 				return RedrawMenuItem(display);
 			}
 			if(StrEqual(info, CHOICE8)) {
