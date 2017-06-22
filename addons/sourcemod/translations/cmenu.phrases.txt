@@ -42,11 +42,24 @@
 		"sv"	"Speciella dagar"
 	}
 	
+	"Weapons Menu Entry"
+	{
+		"en"	"Weapons menu"
+		"sv"	"Vapen-meny"
+	}
+	
+	"Weapons Menu Title"
+	{
+		"en"	"Weapons Menu"
+		"sv"	"Vapenmeny"
+	}
+	
 	"Choice 1"
 	{
 		"en"	"Freeday"
 		"sv"	"Freeday"
 	}
+	
 	
 	"Choice 2"
 	{
