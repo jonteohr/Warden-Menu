@@ -36,7 +36,7 @@ Some of the other entries in the menu include:
 |`sm_cmenu_warday_rounds`|**2**|How many times is a Warday allowed per map?\nSet to 0 for unlimited.|
 |`sm_cmenu_gravity`|**1**|Add an option for a gravity freeday in the menu? 0 = Disable. 1 = Enable.|
 |`sm_cmenu_gravity_team`|**2**|Which team should get a special gravity on Gravity Freedays? 0 = All teams. 1 = Counter-Terrorists 2 = Terorrists.|
-|`sm_cmenu_gravity_strength`|**1.5**|What should the gravity be set to on Gravity Freedays?|
+|`sm_cmenu_gravity_strength`|**0.5**|What should the gravity be set to on Gravity Freedays?|
 |`sm_cmenu_gravity_rounds`|**1**|How many times is a Gravity Freeday allowed per map?\nSet to 0 for unlimited.|
 |`sm_cmenu_noblock`|**1**|Add an option for toggling noblock in the menu? 0 = Disable. 1 = Enable.|
 |`sm_cmenu_noblock_standard`|**1**|What should the noblock rules be as default on start of each round? This should have the same value as your mp_solid_teammates cvar in server.cfg. 1 = Solid teammates. 0 = No block|
