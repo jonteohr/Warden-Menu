@@ -19,7 +19,10 @@ The major function this plugin offers is that the warden can choose a special da
 3. Warday
 4. Gravity Freeday
 
-There's also some other functions in the menu that the warden can take advantage of in order to make the game more comfortable.
+There's also some other functions in the menu that the warden can take advantage of in order to make the game more comfortable.  
+Some of the other entries in the menu include:  
+1. Toggle noblock
+2. Weapons menu, allowing the warden to spawn in the selected weapon to himself
 
 ## CVars
 | ConVar      | Default | Description   |
@@ -38,6 +41,7 @@ There's also some other functions in the menu that the warden can take advantage
 |`sm_cmenu_noblock`|**1**|Add an option for toggling noblock in the menu? 0 = Disable. 1 = Enable.|
 |`sm_cmenu_noblock_standard`|**1**|What should the noblock rules be as default on start of each round? This should have the same value as your mp_solid_teammates cvar in server.cfg. 1 = Solid teammates. 0 = No block|
 |`sm_cmenu_auto_open`|**1**|Automatically open the menu when a user becomes warden? 0 = Disable. 1 = Enable.|
+|`sm_cmenu_weapons`|**1**|Add an option for giving the warden a list of weapons via the menu? 0 = Disable. 1 = Enable.|
 
 ## Commands
 | Command   | Description   | Flag     |
