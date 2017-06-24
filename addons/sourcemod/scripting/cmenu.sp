@@ -1,11 +1,22 @@
+/*************************************************************
+*															 *
+*						Warden Menu							 *
+*						Author: Hypr						 *
+*															 *
+*************************************************************/
+
+#pragma semicolon 1
+
 #include <sourcemod>
+#include <colorvariables>
 #include <cstrike>
-#include <colors>
 #include <sdktools>
+#include <sdkhooks>
 #define REQUIRE_PLUGIN
 #include <eskojbwarden>
+#undef REQUIRE_PLUGIN
 
-#define VERSION "1.1 (003)"
+#define VERSION "1.1 (004)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -17,8 +28,8 @@
 #define SPACER "#spacer"
 #define CHOICE8 "#choice8"
 
-new String:prefix[] = "[{blue}WardenMenu{default}]";
-new bool:IsGameActive = false;
+bool IsGameActive = false;
+char cmenuPrefix[] = "[{blue}WardenMenu{default}]";
 
 // Current game
 int hnsActive = 0;
@@ -53,7 +64,7 @@ ConVar cvEnableWeapons;
 
 ConVar noblock;
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
 	name = "[CS:GO] Warden Menu",
 	author = "Hypr",
 	description = "Gives wardens access to a special menu",
@@ -68,7 +79,7 @@ public OnPluginStart() {
 	
 	AutoExecConfig(true, "cmenu");
 	
-	//var = CreateConVar("cvar_name", "default_value", "description", _, true, min, true, max);
+	//var = CreateConVar("cvar_name", "default_value", "description", cvarFlag, true, min, true, max);
 	cvVersion = CreateConVar("sm_cmenu_version", VERSION, "Current version running. Debugging purposes only!", FCVAR_DONTRECORD|FCVAR_NOTIFY); // Not visible in config
 	cvHnS = CreateConVar("sm_cmenu_hns", "1", "Add an option for Hide and Seek in the menu?\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvHnSGod = CreateConVar("sm_cmenu_hns_godmode", "1", "Makes CT's invulnerable against attacks from T's during HnS to prevent rebels.\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
@@ -89,12 +100,15 @@ public OnPluginStart() {
 	noblock = FindConVar("mp_solid_teammates");
 	
 	RegAdminCmd("sm_abortgames", sm_abortgames, ADMFLAG_BAN);
-	RegConsoleCmd("sm_cmenu", sm_cmenu);
-	RegConsoleCmd("sm_noblock", sm_noblock);
 	
-	HookEvent("player_hurt", OnPlayerHurt);
+	RegConsoleCmd("sm_cmenu", sm_cmenu);
+	RegConsoleCmd("sm_wmenu", sm_cmenu);
+	RegConsoleCmd("sm_noblock", sm_noblock);
+	RegConsoleCmd("sm_days", sm_days);
+	
+	//HookEvent("player_hurt", OnPlayerHurt);
 	HookEvent("player_death", OnPlayerDeath);
-	HookEvent("round_end", OnRoundEnd);
+	HookEvent("round_start", OnRoundStart, EventHookMode_PostNoCopy);
 	
 }
 
@@ -103,23 +117,33 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
 	
 	if(EJBW_IsClientWarden(client)) {
 		abortGames();
-		CPrintToChatAll("%s %t", prefix, "Warden Died");
 	}
 }
 
-public void OnPlayerHurt(Event event, const char[] name, bool dontBroadcast) {
+/*public void OnPlayerHurt(Event event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	int attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
 	
 	if(hnsActive == 1 && GetClientTeam(client) == CS_TEAM_CT && cvHnSGod.IntValue == 1) {
 		if(!IsFakeClient(attacker) && GetClientTeam(attacker) == CS_TEAM_T) {
 			event.Cancel();
-			CPrintToChat(attacker, "%s %t", prefix, "No Rebel HnS");
+			CPrintToChat(attacker, "%s %t", cmenuPrefix, "No Rebel HnS");
 		}
+	}
+}*/
+
+public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom) {
+	if(hnsActive == 1 && GetClientTeam(victim) == CS_TEAM_CT && cvHnSGod.IntValue == 1) {
+		if(!IsFakeClient(attacker) && GetClientTeam(attacker) == CS_TEAM_T) {
+			CPrintToChat(attacker, "%s %t", cmenuPrefix, "No Rebel HnS");
+			return Plugin_Stop;
+		}
+	} else {
+		return Plugin_Continue;
 	}
 }
 
-public void OnRoundEnd(Event event, const char[] name, bool dontBroadcast) {
+public void OnRoundStart(Event event, const char[] name, bool dontBroadcast) {
 	abortGames();
 	SetConVarInt(noblock, cvNoblockStandard.IntValue, true, true);
 }
@@ -129,6 +153,7 @@ public void OnMapStart() {
 }
 
 public void EJBW_OnWardenCreatedByUser(int client) {
+	CPrintToChat(client, "%s %t", cmenuPrefix, "Available to open menu");
 	if(cvAutoOpen.IntValue == 1) {
 		openMenu(client);
 	} else {
@@ -162,10 +187,10 @@ public Action sm_cmenu(int client, int args) {
 public Action sm_abortgames(int client, int args) {
 	
 	if(IsGameActive) {
-		CPrintToChatAll("%s %t", prefix, "Admin Aborted", client);
+		CPrintToChatAll("%s %t", cmenuPrefix, "Admin Aborted", client);
 		abortGames();
 	} else {
-		CPrintToChat(client, "%s %t", prefix, "Admin Abort Denied");
+		CPrintToChat(client, "%s %t", cmenuPrefix, "Admin Abort Denied");
 	}
 	
 	return Plugin_Handled;
@@ -187,6 +212,23 @@ public Action sm_noblock(int client, int args) {
 			error(client, 2);
 		}
 	}
+	
+	return Plugin_Handled;
+}
+
+public Action sm_days(int client, int args) {
+	
+	if(!IsFakeClient(client) && IsClientInGame(client) && GetClientTeam(client) == CS_TEAM_CT) {
+		if(EJBW_IsClientWarden(client)) {
+			openDaysMenu(client);
+		} else {
+			error(client, 0);
+		}
+	} else {
+		CPrintToChat(client, "%s %t", cmenuPrefix, "Neither alive or ct");
+	}
+	
+	return Plugin_Handled;
 }
 
 public void openMenu(int client) {
@@ -265,6 +307,7 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 			
 			if(StrEqual(info, CHOICE1)) {
 				Format(display, sizeof(display), "%t", "Weapons Menu Entry");
+				return RedrawMenuItem(display);
 			}
 			if(StrEqual(info, CHOICE2)) {
 				Format(display, sizeof(display), "%t", "Days Entry");
@@ -276,6 +319,7 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 			}
 			if(StrEqual(info, CHOICE8)) {
 				Format(display, sizeof(display), "%t", "Leave Warden");
+				return RedrawMenuItem(display);
 			}
 		}
 	}
@@ -342,7 +386,7 @@ public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2)
 				if(StrEqual(info, CHOICE8)) {
 					abortGames();
 				} else if(StrEqual(info, CHOICE1) || StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3) || StrEqual(info, CHOICE4)) {
-					CPrintToChat(client, "%s %t", prefix, "Cannot Exec Game");
+					CPrintToChat(client, "%s %t", cmenuPrefix, "Cannot Exec Game");
 				}
 			}
 		}
@@ -549,16 +593,16 @@ public void abortGames() {
 public void initHns(int client) {
 	if(cvHnSTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "HnS Begun");
-		CPrintToChatAll("%s %t", prefix, "HnS Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
 		hnsActive = 1;
 		IsGameActive = true;
 	} else if(cvHnSTimes.IntValue != 0 && hnsTimes >= cvHnSTimes.IntValue) {
 		
-		CPrintToChat(client, "%s %t", prefix, "Too many hns", hnsTimes, cvHnSTimes.IntValue);
+		CPrintToChat(client, "%s %t", cmenuPrefix, "Too many hns", hnsTimes, cvHnSTimes.IntValue);
 		
 	} else if(cvHnSTimes.IntValue != 0 && hnsTimes < cvHnSTimes.IntValue) {
 		PrintHintTextToAll("%t", "HnS Begun");
-		CPrintToChatAll("%s %t", prefix, "HnS Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
 		hnsActive = 1;
 		IsGameActive = true;
 		hnsTimes++;
@@ -569,18 +613,19 @@ public void initFreeday(int client) {
 	
 	/*
 	* What to do to the server here??
+	* Probably nothing that needs to be done..
 	*/
 	
 	if(cvFreedayTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "Freeday Begun");
-		CPrintToChatAll("%s %t", prefix, "Freeday Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Freeday Begun");
 		freedayActive = 1;
 		IsGameActive = true;
 	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes >= cvFreedayTimes.IntValue) {
-		CPrintToChat(client, "%s %t", prefix, "Too many freedays", freedayTimes, cvFreedayTimes.IntValue);
+		CPrintToChat(client, "%s %t", cmenuPrefix, "Too many freedays", freedayTimes, cvFreedayTimes.IntValue);
 	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes < cvFreedayTimes.IntValue) {
 		PrintHintTextToAll("%t", "Freeday Begun");
-		CPrintToChatAll("%s %t", prefix, "Freeday Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Freeday Begun");
 		freedayActive = 1;
 		IsGameActive = true;
 		freedayTimes++;
@@ -595,14 +640,14 @@ public void initWarday(int client) {
 	
 	if(cvWardayTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "Warday Begun");
-		CPrintToChatAll("%s %t", prefix, "Warday Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Warday Begun");
 		wardayActive = 1;
 		IsGameActive = true;
 	} else if(cvWardayTimes.IntValue != 0 && warTimes >= cvWardayTimes.IntValue) {
 		CPrintToChat(client, "%s %t", "Too many wardays", warTimes, cvWardayTimes.IntValue);
 	} else if(cvWardayTimes.IntValue != 0 && warTimes < cvWardayTimes.IntValue) {
 		PrintHintTextToAll("%t", "Warday Begun");
-		CPrintToChatAll("%s %t", prefix, "Warday Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Warday Begun");
 		wardayActive = 1;
 		IsGameActive = true;
 		warTimes++;
@@ -613,7 +658,7 @@ public void initWarday(int client) {
 public void initGrav(int client) {
 	if(cvGravTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "Gravday Begun");
-		CPrintToChatAll("%s %t", prefix, "Gravday Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Gravday Begun");
 		gravActive = 1;
 		IsGameActive = true;
 		
@@ -623,10 +668,10 @@ public void initGrav(int client) {
 			}
 		}
 	} else if(cvGravTimes.IntValue != 0 && gravTimes >= cvGravTimes.IntValue) {
-		CPrintToChat(client, "%s %t", prefix, "Too many gravdays", gravTimes, cvGravTimes.IntValue);
+		CPrintToChat(client, "%s %t", cmenuPrefix, "Too many gravdays", gravTimes, cvGravTimes.IntValue);
 	} else if(cvGravTimes.IntValue != 0 && gravTimes < cvGravTimes.IntValue) {
 		PrintHintTextToAll("%t", "Gravday Begun");
-		CPrintToChatAll("%s %t", prefix, "Gravday Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Gravday Begun");
 		gravActive = 1;
 		IsGameActive = true;
 		
@@ -651,22 +696,22 @@ public void initGrav(int client) {
 
 public void toggleNoblock() {
 	if(noblock.IntValue == 1) {
-		CPrintToChatAll("%s %t", prefix, "Noblock on");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Noblock on");
 		SetConVarInt(noblock, 0, true, true);
 	} else if(noblock.IntValue == 0) {
-		CPrintToChatAll("%s %t", prefix, "Noblock off");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Noblock off");
 		SetConVarInt(noblock, 1, true, true);
 	}
 }
 
 public void error(int client, int errorCode) {
 	if(errorCode == 0) {
-		CPrintToChat(client, "%s %t", prefix, "Not Warden");
+		CPrintToChat(client, "%s %t", cmenuPrefix, "Not Warden");
 	}
 	if(errorCode == 1) {
-		CPrintToChat(client, "%s %t", prefix, "Not Alive");
+		CPrintToChat(client, "%s %t", cmenuPrefix, "Not Alive");
 	}
 	if(errorCode == 2) {
-		CPrintToChat(client, "%s %t", prefix, "Not CT");
+		CPrintToChat(client, "%s %t", cmenuPrefix, "Not CT");
 	}
 }

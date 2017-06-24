@@ -191,4 +191,16 @@
 		"en"	"The warden has activated noblock."
 		"sv"	"Warden har aktiverat noblock."
 	}
+	
+	"Neither alive or ct"
+	{
+		"en"	"You must be alive, a CT and warden to do this."
+		"sv"	"Du måste leva, vara CT och warden för detta."
+	}
+	
+	"Available to open menu"
+	{
+		"en"	"You're now eligible to open the warden menu with {purple}!cmenu{default}!"
+		"sv"	"Du kan nu öppna Warden-menyn via {purple}!cmenu{default}!"
+	}
 }
