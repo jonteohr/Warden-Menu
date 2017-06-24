@@ -468,11 +468,12 @@ public void openWeaponsMenu(int client) {
 	
 	menu.SetTitle(title);
 	menu.AddItem(CHOICE1, "Choice 1"); // AK47
-	menu.AddItem(CHOICE2, "Choice 2"); // M4
-	menu.AddItem(CHOICE3, "Choice 3"); // AWP
-	menu.AddItem(CHOICE4, "Choice 4"); // P90
-	menu.AddItem(CHOICE5, "Choice 5"); // Negev
-	menu.AddItem(CHOICE6, "Choice 6"); // Scout
+	menu.AddItem(CHOICE2, "Choice 2"); // M4A1-S
+	menu.AddItem(CHOICE3, "Choice 3"); // M4A4
+	menu.AddItem(CHOICE4, "Choice 4"); // AWP
+	menu.AddItem(CHOICE5, "Choice 5"); // P90
+	menu.AddItem(CHOICE6, "Choice 6"); // Negev
+	menu.AddItem(CHOICE7, "Choice 7"); // Scout
 	menu.ExitBackButton = true;
 	menu.Display(client, 20);
 }
@@ -505,20 +506,25 @@ public int weaponsMenuHandler(Menu menu, MenuAction action, int client, int para
 			}
 			if(StrEqual(info, CHOICE3)) {
 				if(!IsFakeClient(client) && IsClientInGame(client)) {
-					GivePlayerItem(client, "weapon_awp");
+					GivePlayerItem(client, "weapon_m4a1");
 				}
 			}
 			if(StrEqual(info, CHOICE4)) {
 				if(!IsFakeClient(client) && IsClientInGame(client)) {
-					GivePlayerItem(client, "weapon_p90");
+					GivePlayerItem(client, "weapon_awp");
 				}
 			}
 			if(StrEqual(info, CHOICE5)) {
 				if(!IsFakeClient(client) && IsClientInGame(client)) {
-					GivePlayerItem(client, "weapon_negev");
+					GivePlayerItem(client, "weapon_p90");
 				}
 			}
 			if(StrEqual(info, CHOICE6)) {
+				if(!IsFakeClient(client) && IsClientInGame(client)) {
+					GivePlayerItem(client, "weapon_negev");
+				}
+			}
+			if(StrEqual(info, CHOICE7)) {
 				if(!IsFakeClient(client) && IsClientInGame(client)) {
 					GivePlayerItem(client, "weapon_ssg08");
 				}
@@ -531,7 +537,7 @@ public int weaponsMenuHandler(Menu menu, MenuAction action, int client, int para
 			char info[32];
 			menu.GetItem(param2, info, sizeof(info), style);
 			
-			if(StrEqual(info, CHOICE1) || StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3) || StrEqual(info, CHOICE4) || StrEqual(info, CHOICE5) || StrEqual(info, CHOICE6)) {
+			if(StrEqual(info, CHOICE1) || StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3) || StrEqual(info, CHOICE4) || StrEqual(info, CHOICE5) || StrEqual(info, CHOICE6) || StrEqual(info, CHOICE7)) {
 				return ITEMDRAW_DEFAULT;
 			} else {
 				return style;
@@ -553,18 +559,22 @@ public int weaponsMenuHandler(Menu menu, MenuAction action, int client, int para
 				return RedrawMenuItem(display);
 			}
 			if(StrEqual(info, CHOICE3)) {
-				Format(display, sizeof(display), "AWP");
+				Format(display, sizeof(display), "M4A4");
 				return RedrawMenuItem(display);
 			}
 			if(StrEqual(info, CHOICE4)) {
-				Format(display, sizeof(display), "P90");
+				Format(display, sizeof(display), "AWP");
 				return RedrawMenuItem(display);
 			}
 			if(StrEqual(info, CHOICE5)) {
-				Format(display, sizeof(display), "Negev");
+				Format(display, sizeof(display), "P90");
 				return RedrawMenuItem(display);
 			}
 			if(StrEqual(info, CHOICE6)) {
+				Format(display, sizeof(display), "Negev");
+				return RedrawMenuItem(display);
+			}
+			if(StrEqual(info, CHOICE7)) {
 				Format(display, sizeof(display), "Scout");
 				return RedrawMenuItem(display);
 			}
