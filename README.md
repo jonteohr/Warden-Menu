@@ -48,6 +48,7 @@ Some of the other entries in the menu include:
 |:--------- |:------------- |:-------- |
 |sm_cmenu   | _Opens up the warden menu._| - |
 |sm_noblock | _Toggles noblock_        | - |
+|sm_days    | _Opens the days menu_    | - |
 |sm_abortgames | _Cancels the current game._| b |
 
 ## Todo
