@@ -5,13 +5,15 @@
 #define REQUIRE_PLUGIN
 #include <eskojbwarden>
 
-#define VERSION "1.1 (002)"
+#define VERSION "1.1 (003)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
 #define CHOICE3 "#choice3"
 #define CHOICE4 "#choice4"
 #define CHOICE5 "#choice5"
+#define CHOICE6 "#choice6"
+#define CHOICE7 "#choice7"
 #define SPACER "#spacer"
 #define CHOICE8 "#choice8"
 
@@ -426,6 +428,7 @@ public void openWeaponsMenu(int client) {
 	menu.AddItem(CHOICE3, "Choice 3"); // AWP
 	menu.AddItem(CHOICE4, "Choice 4"); // P90
 	menu.AddItem(CHOICE5, "Choice 5"); // Negev
+	menu.AddItem(CHOICE6, "Choice 6"); // Scout
 	menu.ExitBackButton = true;
 	menu.Display(client, 20);
 }
@@ -471,6 +474,11 @@ public int weaponsMenuHandler(Menu menu, MenuAction action, int client, int para
 					GivePlayerItem(client, "weapon_negev");
 				}
 			}
+			if(StrEqual(info, CHOICE6)) {
+				if(!IsFakeClient(client) && IsClientInGame(client)) {
+					GivePlayerItem(client, "weapon_ssg08");
+				}
+			}
 		}
 		case MenuAction_End:{delete menu;}
 		case MenuAction_DrawItem:
@@ -479,7 +487,7 @@ public int weaponsMenuHandler(Menu menu, MenuAction action, int client, int para
 			char info[32];
 			menu.GetItem(param2, info, sizeof(info), style);
 			
-			if(StrEqual(info, CHOICE1) || StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3) || StrEqual(info, CHOICE4) || StrEqual(info, CHOICE5)) {
+			if(StrEqual(info, CHOICE1) || StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3) || StrEqual(info, CHOICE4) || StrEqual(info, CHOICE5) || StrEqual(info, CHOICE6)) {
 				return ITEMDRAW_DEFAULT;
 			} else {
 				return style;
@@ -510,6 +518,10 @@ public int weaponsMenuHandler(Menu menu, MenuAction action, int client, int para
 			}
 			if(StrEqual(info, CHOICE5)) {
 				Format(display, sizeof(display), "Negev");
+				return RedrawMenuItem(display);
+			}
+			if(StrEqual(info, CHOICE6)) {
+				Format(display, sizeof(display), "Scout");
 				return RedrawMenuItem(display);
 			}
 		}
