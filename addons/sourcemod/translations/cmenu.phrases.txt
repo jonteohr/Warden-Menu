@@ -24,10 +24,34 @@
 		"sv"	"Warden dog, avbryter samtliga spel."
 	}
 	
-	"Menu Title"
+	"Days Menu Title"
+	{
+		"en"	"Days"
+		"sv"	"Dagar"
+	}
+	
+	"Warden Menu Title"
 	{
 		"en"	"Warden Menu"
 		"sv"	"Warden Meny"
+	}
+	
+	"Days Entry"
+	{
+		"en"	"Event days"
+		"sv"	"Speciella dagar"
+	}
+	
+	"Weapons Menu Entry"
+	{
+		"en"	"Weapons menu"
+		"sv"	"Vapen-meny"
+	}
+	
+	"Weapons Menu Title"
+	{
+		"en"	"Weapons Menu"
+		"sv"	"Vapenmeny"
 	}
 	
 	"Choice 1"
@@ -35,6 +59,7 @@
 		"en"	"Freeday"
 		"sv"	"Freeday"
 	}
+	
 	
 	"Choice 2"
 	{
@@ -54,10 +79,16 @@
 		"sv"	"Gravity Freeday"
 	}
 	
-	"Choice 5"
+	"Toggle Noblock Entry"
 	{
 		"en"	"Toggle noblock"
-		"sv"	""
+		"sv"	"Noblock"
+	}
+	
+	"Leave Warden"
+	{
+		"en"	"Leave Warden"
+		"sv"	"Lämna som Warden"
 	}
 	
 	"Choice 8"
@@ -159,5 +190,17 @@
 	{
 		"en"	"The warden has activated noblock."
 		"sv"	"Warden har aktiverat noblock."
+	}
+	
+	"Neither alive or ct"
+	{
+		"en"	"You must be alive, a CT and warden to do this."
+		"sv"	"Du måste leva, vara CT och warden för detta."
+	}
+	
+	"Available to open menu"
+	{
+		"en"	"You're now eligible to open the warden menu with {purple}!cmenu{default}!"
+		"sv"	"Du kan nu öppna Warden-menyn via {purple}!cmenu{default}!"
 	}
 }
