@@ -16,7 +16,7 @@
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.1 (005)"
+#define VERSION "1.1 (006)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -363,6 +363,11 @@ public void openDaysMenu(int client) {
 }
 
 public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2) {
+	
+	if(client == MenuEnd_ExitBack) {
+		openMenu(client);
+	}
+	
 	switch(action) {
 		case MenuAction_Start:
 		{
@@ -403,6 +408,12 @@ public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2)
 		case MenuAction_End:
 		{
 			delete menu;
+		}
+		case MenuAction_Cancel:
+		{
+			if(param2 == MenuCancel_ExitBack) {
+				openMenu(client);
+			}
 		}
 		case MenuAction_DrawItem:
 		{
@@ -540,7 +551,16 @@ public int weaponsMenuHandler(Menu menu, MenuAction action, int client, int para
 				}
 			}
 		}
-		case MenuAction_End:{delete menu;}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+		case MenuAction_Cancel:
+		{
+			if(param2 == MenuCancel_ExitBack) {
+				openMenu(client);
+			}
+		}
 		case MenuAction_DrawItem:
 		{
 			int style;
