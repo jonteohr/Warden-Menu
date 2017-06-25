@@ -16,7 +16,7 @@
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.1 (004)"
+#define VERSION "1.1 (005)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -110,6 +110,16 @@ public OnPluginStart() {
 	HookEvent("player_death", OnPlayerDeath);
 	HookEvent("round_start", OnRoundStart, EventHookMode_PostNoCopy);
 	
+	for(int i = 1; i < MaxClients; i++) {
+		if(!IsClientInGame(i)) 
+			continue;
+		SDKHook(i, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
+	}
+	
+}
+
+public void OnClientPutInServer(int client) {
+	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
 }
 
 public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
@@ -132,15 +142,15 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
 	}
 }*/
 
-public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom) {
+public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype) {
 	if(hnsActive == 1 && GetClientTeam(victim) == CS_TEAM_CT && cvHnSGod.IntValue == 1) {
-		if(!IsFakeClient(attacker) && GetClientTeam(attacker) == CS_TEAM_T) {
-			CPrintToChat(attacker, "%s %t", cmenuPrefix, "No Rebel HnS");
-			return Plugin_Stop;
+		if(!IsFakeClient(inflictor) && GetClientTeam(inflictor) == CS_TEAM_T) {
+			CPrintToChat(inflictor, "%s %t", cmenuPrefix, "No Rebel HnS");
+			return Plugin_Handled;
 		}
-	} else {
-		return Plugin_Continue;
 	}
+	
+	return Plugin_Continue;
 }
 
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast) {
