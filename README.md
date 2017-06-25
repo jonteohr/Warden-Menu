@@ -47,6 +47,7 @@ Some of the other entries in the menu include:
 | Command   | Description   | Flag     |
 |:--------- |:------------- |:-------- |
 |sm_cmenu   | _Opens up the warden menu._| - |
+|sm_wmenu   | _Same as above command_| - |
 |sm_noblock | _Toggles noblock_        | - |
 |sm_days    | _Opens the days menu_    | - |
 |sm_abortgames | _Cancels the current game._| b |
