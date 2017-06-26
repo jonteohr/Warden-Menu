@@ -42,6 +42,7 @@ Some of the other entries in the menu include:
 |`sm_cmenu_noblock_standard`|**1**|What should the noblock rules be as default on start of each round? This should have the same value as your mp_solid_teammates cvar in server.cfg. 1 = Solid teammates. 0 = No block|
 |`sm_cmenu_auto_open`|**1**|Automatically open the menu when a user becomes warden? 0 = Disable. 1 = Enable.|
 |`sm_cmenu_weapons`|**1**|Add an option for giving the warden a list of weapons via the menu? 0 = Disable. 1 = Enable.|
+|`sm_cmenu_restricted_freeday`|**1**|Add an option for a restricted freeday in the menu? This event uses the same configuration as a normal freeday. 0 = Disable. 1 = Enable.|
 
 ## Commands
 | Command   | Description   | Flag     |
