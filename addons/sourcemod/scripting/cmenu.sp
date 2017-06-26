@@ -16,7 +16,7 @@
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.1a (001)"
+#define VERSION "1.1b (002)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -240,7 +240,6 @@ public void openMenu(int client) {
 	Format(title, sizeof(title), "%t", "Warden Menu Title");
 	
 	menu.SetTitle(title);
-	menu.AddItem(SEP, "SEP");
 	if(cvEnableWeapons.IntValue == 1) {
 		menu.AddItem(CHOICE1, "Choice 1");
 	}
@@ -249,8 +248,8 @@ public void openMenu(int client) {
 		menu.AddItem(CHOICE3, "Choice 3");
 	}
 	menu.AddItem(CHOICE8, "Choice 8");
-	menu.AddItem(SEP, "SEP");
-	menu.Display(client, 20);
+	menu.Display(client, 0);
+	
 }
 
 public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param2) {
@@ -362,7 +361,7 @@ public void openDaysMenu(int client) {
 	menu.AddItem(SPACER, "Spacer");
 	menu.AddItem(CHOICE8, "Choice 8");
 	menu.ExitBackButton = true;
-	menu.Display(client, 20);
+	menu.Display(client, 0);
 }
 
 public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2) {
@@ -510,7 +509,7 @@ public void openWeaponsMenu(int client) {
 	menu.AddItem(CHOICE6, "Choice 6"); // Negev
 	menu.AddItem(CHOICE7, "Choice 7"); // Scout
 	menu.ExitBackButton = true;
-	menu.Display(client, 20);
+	menu.Display(client, 0);
 }
 
 public int weaponsMenuHandler(Menu menu, MenuAction action, int client, int param2) {
@@ -647,9 +646,9 @@ public void abortGames() {
 public void initHns(int client) {
 	if(cvHnSTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "HnS Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		hnsActive = 1;
 		IsGameActive = true;
 	} else if(cvHnSTimes.IntValue != 0 && hnsTimes >= cvHnSTimes.IntValue) {
@@ -658,9 +657,9 @@ public void initHns(int client) {
 		
 	} else if(cvHnSTimes.IntValue != 0 && hnsTimes < cvHnSTimes.IntValue) {
 		PrintHintTextToAll("%t", "HnS Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		hnsActive = 1;
 		IsGameActive = true;
 		hnsTimes++;
@@ -676,18 +675,18 @@ public void initFreeday(int client) {
 	
 	if(cvFreedayTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "Freeday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Freeday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		freedayActive = 1;
 		IsGameActive = true;
 	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes >= cvFreedayTimes.IntValue) {
 		CPrintToChat(client, "%s %t", cmenuPrefix, "Too many freedays", freedayTimes, cvFreedayTimes.IntValue);
 	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes < cvFreedayTimes.IntValue) {
 		PrintHintTextToAll("%t", "Freeday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Freeday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		freedayActive = 1;
 		IsGameActive = true;
 		freedayTimes++;
@@ -697,20 +696,20 @@ public void initFreeday(int client) {
 public void initRestFreeday(int client) {
 	if(cvFreedayTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "Rest Freeday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Rest Freeday Begun");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Rest Freeday Warning");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		freedayActive = 1;
 		IsGameActive = true;
 	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes >= cvFreedayTimes.IntValue) {
 		CPrintToChat(client, "%s %t", cmenuPrefix, "Too many freedays", freedayTimes, cvFreedayTimes.IntValue);
 	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes < cvFreedayTimes.IntValue) {
 		PrintHintTextToAll("%t", "Rest Freeday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Rest Freeday Begun");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Rest Freeday Warning");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		freedayActive = 1;
 		IsGameActive = true;
 		freedayTimes++;
@@ -725,20 +724,20 @@ public void initWarday(int client) {
 	
 	if(cvWardayTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "Warday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Warday Begun");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Warday Warning");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		wardayActive = 1;
 		IsGameActive = true;
 	} else if(cvWardayTimes.IntValue != 0 && warTimes >= cvWardayTimes.IntValue) {
 		CPrintToChat(client, "%s %t", "Too many wardays", warTimes, cvWardayTimes.IntValue);
 	} else if(cvWardayTimes.IntValue != 0 && warTimes < cvWardayTimes.IntValue) {
 		PrintHintTextToAll("%t", "Warday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Warday Begun");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Warday Warning");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		wardayActive = 1;
 		IsGameActive = true;
 		warTimes++;
@@ -749,9 +748,9 @@ public void initWarday(int client) {
 public void initGrav(int client) {
 	if(cvGravTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "Gravday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Gravday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		gravActive = 1;
 		IsGameActive = true;
 		
@@ -774,9 +773,9 @@ public void initGrav(int client) {
 		CPrintToChat(client, "%s %t", cmenuPrefix, "Too many gravdays", gravTimes, cvGravTimes.IntValue);
 	} else if(cvGravTimes.IntValue != 0 && gravTimes < cvGravTimes.IntValue) {
 		PrintHintTextToAll("%t", "Gravday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Gravday Begun");
-		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("{blue}-----------------------------------------------------");
 		gravActive = 1;
 		IsGameActive = true;
 		
