@@ -1,5 +1,6 @@
 # Warden-Menu [![Build Status](https://travis-ci.org/condolent/Warden-Menu.svg?branch=master)](https://travis-ci.org/condolent/Warden-Menu)
-Sourcemod plugin for Jailbreak servers. Giving wardens a special menu to execute games with specific game-rules.
+Sourcemod plugin for Jailbreak servers. Giving wardens a special menu to execute games with specific game-rules.  
+[AlliedModders](https://forums.alliedmods.net/showthread.php?t=298907)
 
 ## Description
 This plugin works great for jailbreak servers on CS:GO where the current warden can open up a menu. This menu gives the warden access to round-specific commands/variables that create funny games for all the players!
