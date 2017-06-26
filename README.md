@@ -53,6 +53,10 @@ Some of the other entries in the menu include:
 |sm_days    | _Opens the days menu_    | - |
 |sm_abortgames | _Cancels the current game._| b |
 
+## Translate
+Want to help translate?  
+Send me a message on [Steam](https://steamcommunity.com/id/hyprcsgo) or create an [Issue](https://github.com/condolent/Warden-Menu/issues).
+
 ## Todo
 _Currently in development, alot of stuff is in this list so it's currently unecessary to write everything down here!_
 
