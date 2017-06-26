@@ -54,29 +54,35 @@
 		"sv"	"Vapenmeny"
 	}
 	
-	"Choice 1"
+	"Freeday Entry"
 	{
 		"en"	"Freeday"
 		"sv"	"Freeday"
 	}
 	
 	
-	"Choice 2"
+	"HnS Entry"
 	{
 		"en"	"Hide n' Seek"
 		"sv"	"Hide n' Seek"
 	}
 	
-	"Choice 3"
+	"Warday Entry"
 	{
 		"en"	"Warday"
 		"sv"	"Warday"
 	}
 	
-	"Choice 4"
+	"Gravity Freeday Entry"
 	{
 		"en"	"Gravity Freeday"
 		"sv"	"Gravity Freeday"
+	}
+	
+	"Restricted FD Entry"
+	{
+		"en"	"Restricted Freeday"
+		"sv"	"Restricted Freeday"
 	}
 	
 	"Toggle Noblock Entry"
@@ -91,7 +97,7 @@
 		"sv"	"Lämna som Warden"
 	}
 	
-	"Choice 8"
+	"Abort Current Day"
 	{
 		"en"	"Abort game"
 		"sv"	"Avbryt nuvarande spel"
@@ -134,16 +140,34 @@
 		"sv"	"Warden valde att ha en Warday för denna runda!"
 	}
 	
+	"Warday Warning"
+	{
+		"en"	"All terrorists should go to the armory now."
+		"sv"	"Alla terrorister ska gå till armory nu."
+	}
+	
 	"Gravday Begun"
 	{
 		"en"	"The warden has selected Gravity Freeday for this round!"
 		"sv"	"Warden valde att ha en Gravity Freeday för denna runda!"
 	}
 	
+	"Rest Freeday Begun"
+	{
+		"en"	"The warden has selected Restricted Freeday for this round!"
+		"sv"	"Warden valde att ha en Restricted Freeday för denna runda!"
+	}
+	
+	"Rest Freeday Warning"
+	{
+		"en"	"All terrorists with weapons will be killed on sight!"
+		"sv"	"Alla terrorister med vapen kommer bli beskjutna!"
+	}
+	
 	"No Rebel HnS"
 	{
-		"en"	"{red}You cannot become a rebel during Hide and Seek!"
-		"sv"	"{red}Du kan inte rebella under Hide and Seek!"
+		"en"	"{darkred}You cannot become a rebel during Hide and Seek!"
+		"sv"	"{darkred}Du kan inte rebella under Hide and Seek!"
 	}
 	
 	"Too many hns"
@@ -203,4 +227,11 @@
 		"en"	"You're now eligible to open the warden menu with {purple}!cmenu{default}!"
 		"sv"	"Du kan nu öppna Warden-menyn via {purple}!cmenu{default}!"
 	}
+	
+	"Warden Aborted"
+	{
+		"en"	"Warden has cancelled the current event!"
+		"sv"	"Warden har avbrutit den senaste dagen!"
+	}
+	
 }

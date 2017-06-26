@@ -16,7 +16,7 @@
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.1 (006)"
+#define VERSION "1.1a (001)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -26,6 +26,7 @@
 #define CHOICE6 "#choice6"
 #define CHOICE7 "#choice7"
 #define SPACER "#spacer"
+#define SEP "#sep"
 #define CHOICE8 "#choice8"
 
 bool IsGameActive = false;
@@ -58,6 +59,7 @@ ConVar cvGrav;
 ConVar cvGravTeam;
 ConVar cvGravStrength;
 ConVar cvGravTimes;
+ConVar cvRestFreeday;
 ConVar cvNoblock;
 ConVar cvNoblockStandard;
 ConVar cvEnableWeapons;
@@ -80,7 +82,7 @@ public OnPluginStart() {
 	AutoExecConfig(true, "cmenu");
 	
 	//var = CreateConVar("cvar_name", "default_value", "description", cvarFlag, true, min, true, max);
-	cvVersion = CreateConVar("sm_cmenu_version", VERSION, "Current version running. Debugging purposes only!", FCVAR_DONTRECORD|FCVAR_NOTIFY); // Not visible in config
+	cvVersion = CreateConVar("sm_cmenu_version", VERSION, "Current version running. Debugging purposes only!\nDo NOT change this!", FCVAR_DONTRECORD|FCVAR_NOTIFY); // Not visible in config
 	cvHnS = CreateConVar("sm_cmenu_hns", "1", "Add an option for Hide and Seek in the menu?\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvHnSGod = CreateConVar("sm_cmenu_hns_godmode", "1", "Makes CT's invulnerable against attacks from T's during HnS to prevent rebels.\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvHnSTimes = CreateConVar("sm_cmenu_hns_rounds", "2", "How many times is HnS allowed per map?\nSet to 0 for unlimited.", FCVAR_NOTIFY);
@@ -96,11 +98,13 @@ public OnPluginStart() {
 	cvNoblockStandard = CreateConVar("sm_cmenu_noblock_standard", "1", "What should the noblock rules be as default on start of each round?\nThis should have the same value as your mp_solid_teammates cvar in server.cfg.\n1 = Solid teammates.\n0 = No block.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvAutoOpen = CreateConVar("sm_cmenu_auto_open", "1", "Automatically open the menu when a user becomes warden?\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvEnableWeapons = CreateConVar("sm_cmenu_weapons", "1", "Add an option for giving the warden a list of weapons via the menu?\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	cvRestFreeday = CreateConVar("sm_cmenu_restricted_freeday", "1", "Add an option for a restricted freeday in the menu?\nThis event uses the same configuration as a normal freeday.\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
 	noblock = FindConVar("mp_solid_teammates");
 	
-	RegAdminCmd("sm_abortgames", sm_abortgames, ADMFLAG_BAN);
+	// CSetPrefix("[{blue}WardenMenu{default}]"); ## To be tested later on ##
 	
+	RegAdminCmd("sm_abortgames", sm_abortgames, ADMFLAG_BAN);
 	RegConsoleCmd("sm_cmenu", sm_cmenu);
 	RegConsoleCmd("sm_wmenu", sm_cmenu);
 	RegConsoleCmd("sm_noblock", sm_noblock);
@@ -129,18 +133,6 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
 		abortGames();
 	}
 }
-
-/*public void OnPlayerHurt(Event event, const char[] name, bool dontBroadcast) {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
-	int attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
-	
-	if(hnsActive == 1 && GetClientTeam(client) == CS_TEAM_CT && cvHnSGod.IntValue == 1) {
-		if(!IsFakeClient(attacker) && GetClientTeam(attacker) == CS_TEAM_T) {
-			event.Cancel();
-			CPrintToChat(attacker, "%s %t", cmenuPrefix, "No Rebel HnS");
-		}
-	}
-}*/
 
 public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype) {
 	if(hnsActive == 1 && GetClientTeam(victim) == CS_TEAM_CT && cvHnSGod.IntValue == 1) {
@@ -248,6 +240,7 @@ public void openMenu(int client) {
 	Format(title, sizeof(title), "%t", "Warden Menu Title");
 	
 	menu.SetTitle(title);
+	menu.AddItem(SEP, "SEP");
 	if(cvEnableWeapons.IntValue == 1) {
 		menu.AddItem(CHOICE1, "Choice 1");
 	}
@@ -256,6 +249,7 @@ public void openMenu(int client) {
 		menu.AddItem(CHOICE3, "Choice 3");
 	}
 	menu.AddItem(CHOICE8, "Choice 8");
+	menu.AddItem(SEP, "SEP");
 	menu.Display(client, 20);
 }
 
@@ -304,6 +298,8 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 				return ITEMDRAW_DEFAULT;
 			} else if(StrEqual(info, CHOICE3)) {
 				return ITEMDRAW_DEFAULT;
+			} else if(StrEqual(info, SEP)) {
+				return ITEMDRAW_DISABLED;
 			} else { 
 				return style;
 			}
@@ -331,6 +327,10 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 				Format(display, sizeof(display), "%t", "Leave Warden");
 				return RedrawMenuItem(display);
 			}
+			if(StrEqual(info, SEP)) {
+				Format(display, sizeof(display), "--------");
+				return RedrawMenuItem(display);
+			}
 		}
 	}
 	
@@ -347,14 +347,17 @@ public void openDaysMenu(int client) {
 	if(cvFreeday.IntValue == 1) {
 		menu.AddItem(CHOICE1, "Choice 1");
 	}
-	if(cvHnS.IntValue == 1) {
+	if(cvRestFreeday.IntValue == 1) {
 		menu.AddItem(CHOICE2, "Choice 2");
 	}
-	if(cvWarday.IntValue == 1) {
+	if(cvHnS.IntValue == 1) {
 		menu.AddItem(CHOICE3, "Choice 3");
 	}
-	if(cvGrav.IntValue == 1) {
+	if(cvWarday.IntValue == 1) {
 		menu.AddItem(CHOICE4, "Choice 4");
+	}
+	if(cvGrav.IntValue == 1) {
+		menu.AddItem(CHOICE5, "Choice 5");
 	}
 	menu.AddItem(SPACER, "Spacer");
 	menu.AddItem(CHOICE8, "Choice 8");
@@ -389,18 +392,23 @@ public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2)
 					initFreeday(client);
 				}
 				if(StrEqual(info, CHOICE2)) {
-					initHns(client);
+					initRestFreeday(client);
 				}
 				if(StrEqual(info, CHOICE3)) {
-					initWarday(client);
+					initHns(client);
 				}
 				if(StrEqual(info, CHOICE4)) {
+					initWarday(client);
+				}
+				if(StrEqual(info, CHOICE5)) {
 					initGrav(client);
 				}
 			} else {
 				if(StrEqual(info, CHOICE8)) {
 					abortGames();
-				} else if(StrEqual(info, CHOICE1) || StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3) || StrEqual(info, CHOICE4)) {
+					CPrintToChatAll("%s %t", cmenuPrefix, "Warden Aborted");
+					PrintHintTextToAll("%t", "Warden Aborted");
+				} else if(StrEqual(info, CHOICE1) || StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3) || StrEqual(info, CHOICE4) || StrEqual(info, CHOICE5)) {
 					CPrintToChat(client, "%s %t", cmenuPrefix, "Cannot Exec Game");
 				}
 			}
@@ -431,6 +439,8 @@ public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2)
 					return ITEMDRAW_DISABLED;
 				} else if(StrEqual(info, CHOICE4)) {
 					return ITEMDRAW_DISABLED;
+				} else if(StrEqual(info, CHOICE5)) {
+					return ITEMDRAW_DISABLED;
 				} else if(StrEqual(info, CHOICE8)) {
 					return ITEMDRAW_DEFAULT;
 				} else if(StrEqual(info, SPACER)) {
@@ -456,23 +466,27 @@ public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2)
 			char display[64];
 			
 			if(StrEqual(info, CHOICE1)) {
-				Format(display, sizeof(display), "%t", "Choice 1");
+				Format(display, sizeof(display), "%t", "Freeday Entry");
 				return RedrawMenuItem(display);
 			}
 			if(StrEqual(info, CHOICE2)) {
-				Format(display, sizeof(display), "%t", "Choice 2");
+				Format(display, sizeof(display), "%t", "Restricted FD Entry");
 				return RedrawMenuItem(display);
 			}
 			if(StrEqual(info, CHOICE3)) {
-				Format(display, sizeof(display), "%t", "Choice 3");
+				Format(display, sizeof(display), "%t", "HnS Entry");
 				return RedrawMenuItem(display);
 			}
 			if(StrEqual(info, CHOICE4)) {
-				Format(display, sizeof(display), "%t", "Choice 4");
+				Format(display, sizeof(display), "%t", "Warday Entry");
+				return RedrawMenuItem(display);
+			}
+			if(StrEqual(info, CHOICE5)) {
+				Format(display, sizeof(display), "%t", "Gravity Freeday Entry");
 				return RedrawMenuItem(display);
 			}
 			if(StrEqual(info, CHOICE8)) {
-				Format(display, sizeof(display), "%t", "Choice 8");
+				Format(display, sizeof(display), "%t", "Abort Current Day");
 				return RedrawMenuItem(display);
 			}
 		}
@@ -633,7 +647,9 @@ public void abortGames() {
 public void initHns(int client) {
 	if(cvHnSTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "HnS Begun");
+		CPrintToChatAll("{green}--------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
+		CPrintToChatAll("{green}--------------------");
 		hnsActive = 1;
 		IsGameActive = true;
 	} else if(cvHnSTimes.IntValue != 0 && hnsTimes >= cvHnSTimes.IntValue) {
@@ -642,7 +658,9 @@ public void initHns(int client) {
 		
 	} else if(cvHnSTimes.IntValue != 0 && hnsTimes < cvHnSTimes.IntValue) {
 		PrintHintTextToAll("%t", "HnS Begun");
+		CPrintToChatAll("{green}--------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
+		CPrintToChatAll("{green}--------------------");
 		hnsActive = 1;
 		IsGameActive = true;
 		hnsTimes++;
@@ -658,14 +676,41 @@ public void initFreeday(int client) {
 	
 	if(cvFreedayTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "Freeday Begun");
+		CPrintToChatAll("{green}--------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Freeday Begun");
+		CPrintToChatAll("{green}--------------------");
 		freedayActive = 1;
 		IsGameActive = true;
 	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes >= cvFreedayTimes.IntValue) {
 		CPrintToChat(client, "%s %t", cmenuPrefix, "Too many freedays", freedayTimes, cvFreedayTimes.IntValue);
 	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes < cvFreedayTimes.IntValue) {
 		PrintHintTextToAll("%t", "Freeday Begun");
+		CPrintToChatAll("{green}--------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Freeday Begun");
+		CPrintToChatAll("{green}--------------------");
+		freedayActive = 1;
+		IsGameActive = true;
+		freedayTimes++;
+	}
+}
+
+public void initRestFreeday(int client) {
+	if(cvFreedayTimes.IntValue == 0) {
+		PrintHintTextToAll("%t", "Rest Freeday Begun");
+		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Rest Freeday Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Rest Freeday Warning");
+		CPrintToChatAll("{green}--------------------");
+		freedayActive = 1;
+		IsGameActive = true;
+	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes >= cvFreedayTimes.IntValue) {
+		CPrintToChat(client, "%s %t", cmenuPrefix, "Too many freedays", freedayTimes, cvFreedayTimes.IntValue);
+	} else if(cvFreedayTimes.IntValue != 0 && freedayTimes < cvFreedayTimes.IntValue) {
+		PrintHintTextToAll("%t", "Rest Freeday Begun");
+		CPrintToChatAll("{green}--------------------");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Rest Freeday Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Rest Freeday Warning");
+		CPrintToChatAll("{green}--------------------");
 		freedayActive = 1;
 		IsGameActive = true;
 		freedayTimes++;
@@ -680,14 +725,20 @@ public void initWarday(int client) {
 	
 	if(cvWardayTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "Warday Begun");
+		CPrintToChatAll("{green}--------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Warday Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Warday Warning");
+		CPrintToChatAll("{green}--------------------");
 		wardayActive = 1;
 		IsGameActive = true;
 	} else if(cvWardayTimes.IntValue != 0 && warTimes >= cvWardayTimes.IntValue) {
 		CPrintToChat(client, "%s %t", "Too many wardays", warTimes, cvWardayTimes.IntValue);
 	} else if(cvWardayTimes.IntValue != 0 && warTimes < cvWardayTimes.IntValue) {
 		PrintHintTextToAll("%t", "Warday Begun");
+		CPrintToChatAll("{green}--------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Warday Begun");
+		CPrintToChatAll("%s %t", cmenuPrefix, "Warday Warning");
+		CPrintToChatAll("{green}--------------------");
 		wardayActive = 1;
 		IsGameActive = true;
 		warTimes++;
@@ -698,20 +749,34 @@ public void initWarday(int client) {
 public void initGrav(int client) {
 	if(cvGravTimes.IntValue == 0) {
 		PrintHintTextToAll("%t", "Gravday Begun");
+		CPrintToChatAll("{green}--------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Gravday Begun");
+		CPrintToChatAll("{green}--------------------");
 		gravActive = 1;
 		IsGameActive = true;
 		
 		for(new i = 1; i < MaxClients; i++) {
-			if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == CS_TEAM_T) {
-				SetEntityGravity(i, 2.5);
+			if(cvGravTeam.IntValue == 0) {
+				if(IsClientInGame(i) && !IsFakeClient(i)) {
+					SetEntityGravity(i, cvGravStrength.FloatValue);
+				}
+			} else if(cvGravTeam.IntValue == 1) {
+				if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == CS_TEAM_CT) {
+					SetEntityGravity(i, cvGravStrength.FloatValue);
+				}
+			} else if(cvGravTeam.IntValue == 2) {
+				if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == CS_TEAM_T) {
+					SetEntityGravity(i, cvGravStrength.FloatValue);
+				}
 			}
 		}
 	} else if(cvGravTimes.IntValue != 0 && gravTimes >= cvGravTimes.IntValue) {
 		CPrintToChat(client, "%s %t", cmenuPrefix, "Too many gravdays", gravTimes, cvGravTimes.IntValue);
 	} else if(cvGravTimes.IntValue != 0 && gravTimes < cvGravTimes.IntValue) {
 		PrintHintTextToAll("%t", "Gravday Begun");
+		CPrintToChatAll("{green}--------------------");
 		CPrintToChatAll("%s %t", cmenuPrefix, "Gravday Begun");
+		CPrintToChatAll("{green}--------------------");
 		gravActive = 1;
 		IsGameActive = true;
 		
