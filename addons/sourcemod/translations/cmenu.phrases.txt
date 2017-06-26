@@ -140,6 +140,12 @@
 		"sv"	"Warden valde att ha en Warday för denna runda!"
 	}
 	
+	"Warday Warning"
+	{
+		"en"	"All terrorists should go to the armory now."
+		"sv"	"Alla terrorister ska gå till armory nu."
+	}
+	
 	"Gravday Begun"
 	{
 		"en"	"The warden has selected Gravity Freeday for this round!"
@@ -160,8 +166,8 @@
 	
 	"No Rebel HnS"
 	{
-		"en"	"{red}You cannot become a rebel during Hide and Seek!"
-		"sv"	"{red}Du kan inte rebella under Hide and Seek!"
+		"en"	"{darkred}You cannot become a rebel during Hide and Seek!"
+		"sv"	"{darkred}Du kan inte rebella under Hide and Seek!"
 	}
 	
 	"Too many hns"
