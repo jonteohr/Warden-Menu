@@ -163,7 +163,7 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
 
 public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype) {
 	if(hnsActive == 1 && GetClientTeam(victim) == CS_TEAM_CT && cvHnSGod.IntValue == 1) {
-		if(!IsFakeClient(inflictor) && GetClientTeam(inflictor) == CS_TEAM_T) {
+		if(IsClientInGame(inflictor) && GetClientTeam(inflictor) == CS_TEAM_T) {
 			CPrintToChat(inflictor, "%s %t", cmenuPrefix, "No Rebel HnS");
 			return Plugin_Handled;
 		}
@@ -189,6 +189,11 @@ public void OnMapStart() {
 			RemoveClientFreeday(i);
 		}
 	}
+	
+	hnsTimes = 0;
+	freedayTimes = 0;
+	warTimes = 0;
+	gravTimes = 0;
 }
 
 public void EJBW_OnWardenCreatedByUser(int client) {
@@ -202,7 +207,7 @@ public void EJBW_OnWardenCreatedByUser(int client) {
 
 public Action sm_cmenu(int client, int args) {
 	
-	if(IsClientInGame(client) && !IsFakeClient(client)) {
+	if(IsClientInGame(client)) {
 		if(GetClientTeam(client) == CS_TEAM_CT) {
 			if(IsPlayerAlive(client)) {
 				if(EJBW_IsClientWarden(client)) {
@@ -236,7 +241,7 @@ public Action sm_abortgames(int client, int args) {
 }
 
 public Action sm_noblock(int client, int args) {
-	if(IsClientInGame(client) && !IsFakeClient(client)) {
+	if(IsClientInGame(client)) {
 		if(GetClientTeam(client) == CS_TEAM_CT) {
 			if(IsPlayerAlive(client)) {
 				if(EJBW_IsClientWarden(client)) {
@@ -257,7 +262,7 @@ public Action sm_noblock(int client, int args) {
 
 public Action sm_days(int client, int args) {
 	
-	if(!IsFakeClient(client) && IsClientInGame(client) && GetClientTeam(client) == CS_TEAM_CT) {
+	if(IsClientInGame(client) && GetClientTeam(client) == CS_TEAM_CT) {
 		if(EJBW_IsClientWarden(client)) {
 			openDaysMenu(client);
 		} else {
@@ -640,37 +645,37 @@ public int weaponsMenuHandler(Menu menu, MenuAction action, int client, int para
 			menu.GetItem(param2, info, sizeof(info));
 			
 			if(StrEqual(info, CHOICE1)) {
-				if(!IsFakeClient(client) && IsClientInGame(client)) {
+				if(IsClientInGame(client)) {
 					GivePlayerItem(client, "weapon_ak47");
 				}
 			}
 			if(StrEqual(info, CHOICE2)) {
-				if(!IsFakeClient(client) && IsClientInGame(client)) {
+				if(IsClientInGame(client)) {
 					GivePlayerItem(client, "weapon_m4a1_silencer");
 				}
 			}
 			if(StrEqual(info, CHOICE3)) {
-				if(!IsFakeClient(client) && IsClientInGame(client)) {
+				if(IsClientInGame(client)) {
 					GivePlayerItem(client, "weapon_m4a1");
 				}
 			}
 			if(StrEqual(info, CHOICE4)) {
-				if(!IsFakeClient(client) && IsClientInGame(client)) {
+				if(IsClientInGame(client)) {
 					GivePlayerItem(client, "weapon_awp");
 				}
 			}
 			if(StrEqual(info, CHOICE5)) {
-				if(!IsFakeClient(client) && IsClientInGame(client)) {
+				if(IsClientInGame(client)) {
 					GivePlayerItem(client, "weapon_p90");
 				}
 			}
 			if(StrEqual(info, CHOICE6)) {
-				if(!IsFakeClient(client) && IsClientInGame(client)) {
+				if(IsClientInGame(client)) {
 					GivePlayerItem(client, "weapon_negev");
 				}
 			}
 			if(StrEqual(info, CHOICE7)) {
-				if(!IsFakeClient(client) && IsClientInGame(client)) {
+				if(IsClientInGame(client)) {
 					GivePlayerItem(client, "weapon_ssg08");
 				}
 			}
@@ -872,15 +877,15 @@ public void initGrav(int client) {
 		
 		for(new i = 1; i <= MaxClients; i++) {
 			if(cvGravTeam.IntValue == 0) {
-				if(IsClientInGame(i) && !IsFakeClient(i)) {
+				if(IsClientInGame(i)) {
 					SetEntityGravity(i, cvGravStrength.FloatValue);
 				}
 			} else if(cvGravTeam.IntValue == 1) {
-				if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == CS_TEAM_CT) {
+				if(IsClientInGame(i) && GetClientTeam(i) == CS_TEAM_CT) {
 					SetEntityGravity(i, cvGravStrength.FloatValue);
 				}
 			} else if(cvGravTeam.IntValue == 2) {
-				if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == CS_TEAM_T) {
+				if(IsClientInGame(i) && GetClientTeam(i) == CS_TEAM_T) {
 					SetEntityGravity(i, cvGravStrength.FloatValue);
 				}
 			}
@@ -897,15 +902,15 @@ public void initGrav(int client) {
 		
 		for(new i = 1; i <= MaxClients; i++) {
 			if(cvGravTeam.IntValue == 0) {
-				if(IsClientInGame(i) && !IsFakeClient(i)) {
+				if(IsClientInGame(i)) {
 					SetEntityGravity(i, cvGravStrength.FloatValue);
 				}
 			} else if(cvGravTeam.IntValue == 1) {
-				if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == CS_TEAM_CT) {
+				if(IsClientInGame(i) && GetClientTeam(i) == CS_TEAM_CT) {
 					SetEntityGravity(i, cvGravStrength.FloatValue);
 				}
 			} else if(cvGravTeam.IntValue == 2) {
-				if(IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == CS_TEAM_T) {
+				if(IsClientInGame(i) && GetClientTeam(i) == CS_TEAM_T) {
 					SetEntityGravity(i, cvGravStrength.FloatValue);
 				}
 			}
