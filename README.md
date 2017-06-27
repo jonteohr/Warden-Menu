@@ -19,12 +19,12 @@ The major function this plugin offers is that the warden can choose a special da
 2. Freeday
 3. Warday
 4. Gravity Freeday
-5. Give a specific player(s) freeday, marked with beacons
 
 There's also some other functions in the menu that the warden can take advantage of in order to make the game more comfortable.  
 Some of the other entries in the menu include:  
 1. Toggle noblock
 2. Weapons menu, allowing the warden to spawn in the selected weapon to himself
+3. Give a specific player(s) freeday, marked with beacons
 
 ## CVars
 | ConVar      | Default | Description   |
