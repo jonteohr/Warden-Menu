@@ -114,4 +114,4 @@ native bool IsFreedayActive();
 ```
 
 ## Todo
-_Currently in development, alot of stuff is in this list so it's currently unecessary to write everything down here!_
+_Currently nothing planned. Maybe a few more event days!_
