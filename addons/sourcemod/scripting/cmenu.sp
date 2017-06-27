@@ -19,7 +19,7 @@
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.2 (001)"
+#define VERSION "1.2 (002)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -176,14 +176,18 @@ public void OnRoundStart(Event event, const char[] name, bool dontBroadcast) {
 	abortGames();
 	SetConVarInt(noblock, cvNoblockStandard.IntValue, true, true);
 	for(new i = 1; i <= MaxClients; i++) {
-		RemoveClientFreeday(i);
+		if(ClientHasFreeday(i)) {
+			RemoveClientFreeday(i);
+		}
 	}
 }
 
 public void OnMapStart() {
 	abortGames();
 	for(new i = 1; i <= MaxClients; i++) {
-		RemoveClientFreeday(i);
+		if(ClientHasFreeday(i)) {
+			RemoveClientFreeday(i);
+		}
 	}
 }
 
@@ -743,7 +747,9 @@ public void abortGames() {
 		freedayActive = 0;
 		gravActive = 0;
 		for(new i = 1; i <= MaxClients; i++) {
-			SetEntityGravity(i, 1.0);
+			if(IsClientInGame(i)) {
+				SetEntityGravity(i, 1.0);
+			}
 		}
 		
 		Call_StartForward(gF_OnEventDayAborted);
@@ -985,7 +991,7 @@ public int Native_IsFreedayActive(Handle plugin, int numParams) {
 public int Native_ClientHasFreeday(Handle plugin, int numParams) {
 	int client = GetNativeCell(1);
 	
-	if(!IsFakeClient(client)) {
+	if(IsClientInGame(client)) {
 		if(clientFreeday[client] == 1) {
 			return true;
 		}
@@ -997,7 +1003,7 @@ public int Native_ClientHasFreeday(Handle plugin, int numParams) {
 public int Native_GiveClientFreeday(Handle plugin, int numParams) {
 	int client = GetNativeCell(1);
 	
-	if(!IsFakeClient(client)) {
+	if(IsClientInGame(client)) {
 		clientFreeday[client] = 1;
 		ServerCommand("sm_beacon %N", client);
 		return true;
@@ -1009,7 +1015,7 @@ public int Native_GiveClientFreeday(Handle plugin, int numParams) {
 public int Native_RemoveClientFreeday(Handle plugin, int numParams) {
 	int client = GetNativeCell(1);
 	
-	if(!IsFakeClient(client)) {
+	if(IsClientInGame(client)) {
 		clientFreeday[client] = 0;
 		ServerCommand("sm_beacon %N", client);
 		return true;
