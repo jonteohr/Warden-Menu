@@ -8,15 +8,17 @@
 #pragma semicolon 1
 
 #include <sourcemod>
+#include <menus>
 #include <colorvariables>
 #include <cstrike>
 #include <sdktools>
 #include <sdkhooks>
+#include <cmenu>
 #define REQUIRE_PLUGIN
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.1b (002)"
+#define VERSION "1.1c (001)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -66,12 +68,24 @@ ConVar cvEnableWeapons;
 
 ConVar noblock;
 
+Handle gF_OnCMenuOpened = null;
+Handle gF_OnEventDayCreated = null;
+Handle gF_OnEventDayAborted = null;
+
 public Plugin myinfo = {
 	name = "[CS:GO] Warden Menu",
 	author = "Hypr",
 	description = "Gives wardens access to a special menu",
 	version = VERSION,
 	url = "https://condolent.xyz"
+}
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
+	CreateNative("IsEventDayActive", Native_IsEventDayActive);
+	CreateNative("IsHnsActive", Native_IsHnsActive);
+	CreateNative("IsGravFreedayActive", Native_IsGravFreedayActive);
+	CreateNative("IsWarActive", Native_IsWarActive);
+	CreateNative("IsFreedayActive", Native_IsFreedayActive);
 }
 
 public OnPluginStart() {
@@ -119,6 +133,11 @@ public OnPluginStart() {
 			continue;
 		SDKHook(i, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
 	}
+	
+	// Forwards
+	gF_OnCMenuOpened = CreateGlobalForward("OnCMenuOpened", ET_Ignore, Param_Cell);
+	gF_OnEventDayCreated = CreateGlobalForward("OnEventDayCreated", ET_Ignore);
+	gF_OnEventDayAborted = CreateGlobalForward("OnEventDayAborted", ET_Ignore);
 	
 }
 
@@ -248,7 +267,12 @@ public void openMenu(int client) {
 		menu.AddItem(CHOICE3, "Choice 3");
 	}
 	menu.AddItem(CHOICE8, "Choice 8");
+	
 	menu.Display(client, 0);
+	
+	Call_StartForward(gF_OnCMenuOpened);
+	Call_PushCell(client);
+	Call_Finish();
 	
 }
 
@@ -326,10 +350,6 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 				Format(display, sizeof(display), "%t", "Leave Warden");
 				return RedrawMenuItem(display);
 			}
-			if(StrEqual(info, SEP)) {
-				Format(display, sizeof(display), "--------");
-				return RedrawMenuItem(display);
-			}
 		}
 	}
 	
@@ -401,6 +421,8 @@ public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2)
 				}
 				if(StrEqual(info, CHOICE5)) {
 					initGrav(client);
+					Call_StartForward(gF_OnEventDayCreated);
+					Call_Finish();
 				}
 			} else {
 				if(StrEqual(info, CHOICE8)) {
@@ -638,6 +660,9 @@ public void abortGames() {
 		for(new i = 1; i < MaxClients; i++) {
 			SetEntityGravity(i, 1.0);
 		}
+		
+		Call_StartForward(gF_OnEventDayAborted);
+		Call_Finish();
 	} else {
 		PrintToServer("%t", "Failed to abort Server");
 	}
@@ -818,4 +843,56 @@ public void error(int client, int errorCode) {
 	if(errorCode == 2) {
 		CPrintToChat(client, "%s %t", cmenuPrefix, "Not CT");
 	}
+}
+
+/*
+* Natives
+*/
+public int Native_IsEventDayActive(Handle plugin, int numParams)
+{
+	if(IsGameActive) {
+		return true;
+	}
+	
+	return false;
+}
+
+public int Native_IsHnsActive(Handle plugin, int numParams) {
+	if(IsGameActive) {
+		if(hnsActive == 1) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+public int Native_IsGravFreedayActive(Handle plugin, int numParams) {
+	if(IsGameActive) {
+		if(gravActive == 1) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+public int Native_IsWarActive(Handle plugin, int numParams) {
+	if(IsGameActive) {
+		if(wardayActive == 1) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+public int Native_IsFreedayActive(Handle plugin, int numParams) {
+	if(IsGameActive) {
+		if(freedayActive == 1) {
+			return true;
+		}
+	}
+	
+	return true;
 }
