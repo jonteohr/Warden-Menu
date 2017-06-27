@@ -115,6 +115,3 @@ native bool IsFreedayActive();
 
 ## Todo
 _Currently in development, alot of stuff is in this list so it's currently unecessary to write everything down here!_
-
-## Changelog
-_None so far_
