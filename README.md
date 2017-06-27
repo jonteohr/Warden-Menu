@@ -19,6 +19,7 @@ The major function this plugin offers is that the warden can choose a special da
 2. Freeday
 3. Warday
 4. Gravity Freeday
+5. Give a specific player(s) freeday, marked with beacons
 
 There's also some other functions in the menu that the warden can take advantage of in order to make the game more comfortable.  
 Some of the other entries in the menu include:  
