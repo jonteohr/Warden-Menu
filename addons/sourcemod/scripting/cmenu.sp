@@ -14,11 +14,12 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <cmenu>
+#include <adminmenu>
 #define REQUIRE_PLUGIN
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.1c (001)"
+#define VERSION "1.2 (001)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -46,6 +47,8 @@ int freedayTimes = 0;
 int warTimes = 0;
 int gravTimes = 0;
 
+int clientFreeday[MAXPLAYERS +1];
+
 // ## CVars ##
 ConVar cvVersion;
 ConVar cvAutoOpen;
@@ -65,6 +68,7 @@ ConVar cvRestFreeday;
 ConVar cvNoblock;
 ConVar cvNoblockStandard;
 ConVar cvEnableWeapons;
+ConVar cvEnablePlayerFreeday;
 
 ConVar noblock;
 
@@ -86,6 +90,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("IsGravFreedayActive", Native_IsGravFreedayActive);
 	CreateNative("IsWarActive", Native_IsWarActive);
 	CreateNative("IsFreedayActive", Native_IsFreedayActive);
+	CreateNative("ClientHasFreeday", Native_ClientHasFreeday);
+	CreateNative("GiveClientFreeday", Native_GiveClientFreeday);
+	CreateNative("RemoveClientFreeday", Native_RemoveClientFreeday);
 }
 
 public OnPluginStart() {
@@ -113,6 +120,7 @@ public OnPluginStart() {
 	cvAutoOpen = CreateConVar("sm_cmenu_auto_open", "1", "Automatically open the menu when a user becomes warden?\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvEnableWeapons = CreateConVar("sm_cmenu_weapons", "1", "Add an option for giving the warden a list of weapons via the menu?\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvRestFreeday = CreateConVar("sm_cmenu_restricted_freeday", "1", "Add an option for a restricted freeday in the menu?\nThis event uses the same configuration as a normal freeday.\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	cvEnablePlayerFreeday = CreateConVar("sm_cmenu_player_freeday", "1", "Add an option for giving a specific player a freeday in the menu?\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
 	noblock = FindConVar("mp_solid_teammates");
 	
@@ -128,7 +136,7 @@ public OnPluginStart() {
 	HookEvent("player_death", OnPlayerDeath);
 	HookEvent("round_start", OnRoundStart, EventHookMode_PostNoCopy);
 	
-	for(int i = 1; i < MaxClients; i++) {
+	for(int i = 1; i <= MaxClients; i++) {
 		if(!IsClientInGame(i)) 
 			continue;
 		SDKHook(i, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
@@ -167,10 +175,16 @@ public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast) {
 	abortGames();
 	SetConVarInt(noblock, cvNoblockStandard.IntValue, true, true);
+	for(new i = 1; i <= MaxClients; i++) {
+		RemoveClientFreeday(i);
+	}
 }
 
 public void OnMapStart() {
 	abortGames();
+	for(new i = 1; i <= MaxClients; i++) {
+		RemoveClientFreeday(i);
+	}
 }
 
 public void EJBW_OnWardenCreatedByUser(int client) {
@@ -260,13 +274,16 @@ public void openMenu(int client) {
 	
 	menu.SetTitle(title);
 	if(cvEnableWeapons.IntValue == 1) {
-		menu.AddItem(CHOICE1, "Choice 1");
+		menu.AddItem(CHOICE1, "Choice 1"); // Weapons
 	}
-	menu.AddItem(CHOICE2, "Choice 2");
+	menu.AddItem(CHOICE2, "Choice 2"); // Event Days
+	if(cvEnablePlayerFreeday.IntValue == 1) {
+		menu.AddItem(CHOICE4, "Choice 4"); // Player Freeday
+	}
 	if(cvNoblock.IntValue == 1) {
-		menu.AddItem(CHOICE3, "Choice 3");
+		menu.AddItem(CHOICE3, "Choice 3"); // Noblock
 	}
-	menu.AddItem(CHOICE8, "Choice 8");
+	menu.AddItem(CHOICE8, "Choice 8"); // Leave warden
 	
 	menu.Display(client, 0);
 	
@@ -299,6 +316,9 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 			if(StrEqual(info, CHOICE3)) {
 				toggleNoblock();
 			}
+			if(StrEqual(info, CHOICE4)) {
+				playerFreeday(client);
+			}
 			if(StrEqual(info, CHOICE8)) {
 				FakeClientCommand(client, "sm_uw");
 			}
@@ -320,6 +340,8 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 			} else if(StrEqual(info, CHOICE8)) {
 				return ITEMDRAW_DEFAULT;
 			} else if(StrEqual(info, CHOICE3)) {
+				return ITEMDRAW_DEFAULT;
+			} else if(StrEqual(info, CHOICE4)) {
 				return ITEMDRAW_DEFAULT;
 			} else if(StrEqual(info, SEP)) {
 				return ITEMDRAW_DISABLED;
@@ -346,10 +368,77 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 				Format(display, sizeof(display), "%t", "Toggle Noblock Entry");
 				return RedrawMenuItem(display);
 			}
+			if(StrEqual(info, CHOICE4)) {
+				Format(display, sizeof(display), "%t", "Player Freeday Entry");
+				return RedrawMenuItem(display);
+			}
 			if(StrEqual(info, CHOICE8)) {
 				Format(display, sizeof(display), "%t", "Leave Warden");
 				return RedrawMenuItem(display);
 			}
+		}
+	}
+	
+	return 0;
+}
+
+public void playerFreeday(int client) {
+	Menu menu = new Menu(playerFreedayHandler, MENU_ACTIONS_ALL);
+	
+	char title[64];
+	Format(title, sizeof(title), "%t", "Player Freeday Title");
+	
+	menu.SetTitle(title);
+	AddTargetsToMenu(menu, 0, true, true);
+	menu.ExitBackButton = true;
+	menu.Display(client, 0);
+}
+
+public int playerFreedayHandler(Menu menu, MenuAction action, int client, int param2) {
+	switch(action) {
+		case MenuAction_Start:{} // Displaying the menu
+		case MenuAction_Display:
+		{
+			char buffer[255];
+			Format(buffer, sizeof(buffer), "%t", "Player Freeday Title");
+			Panel panel = view_as<Panel>(param2);
+			panel.SetTitle(buffer);
+		}
+		case MenuAction_Select:
+		{
+		
+			char info[MAX_NAME_LENGTH];
+			if(menu.GetItem(param2, info, sizeof(info))) {
+				int target = GetClientOfUserId(StringToInt(info));
+				
+				if(!ClientHasFreeday(target)) {
+					GiveClientFreeday(target);
+					CPrintToChatAll("%s %t", cmenuPrefix, "Player Freeday Announce", target);
+				} else {
+					RemoveClientFreeday(target);
+					CPrintToChatAll("%s %t", cmenuPrefix, "Player Freeday Removed", target);
+				}
+				
+			}
+			
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+		case MenuAction_Cancel:
+		{
+			if(param2 == MenuCancel_ExitBack) {
+				openMenu(client);
+			}
+		}
+		case MenuAction_DrawItem:
+		{
+			int style;
+			char info[32];
+			menu.GetItem(param2, info, sizeof(info), style);
+			
+			return style;
 		}
 	}
 	
@@ -385,10 +474,6 @@ public void openDaysMenu(int client) {
 }
 
 public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2) {
-	
-	if(client == MenuEnd_ExitBack) {
-		openMenu(client);
-	}
 	
 	switch(action) {
 		case MenuAction_Start:
@@ -657,7 +742,7 @@ public void abortGames() {
 		wardayActive = 0;
 		freedayActive = 0;
 		gravActive = 0;
-		for(new i = 1; i < MaxClients; i++) {
+		for(new i = 1; i <= MaxClients; i++) {
 			SetEntityGravity(i, 1.0);
 		}
 		
@@ -779,7 +864,7 @@ public void initGrav(int client) {
 		gravActive = 1;
 		IsGameActive = true;
 		
-		for(new i = 1; i < MaxClients; i++) {
+		for(new i = 1; i <= MaxClients; i++) {
 			if(cvGravTeam.IntValue == 0) {
 				if(IsClientInGame(i) && !IsFakeClient(i)) {
 					SetEntityGravity(i, cvGravStrength.FloatValue);
@@ -804,7 +889,7 @@ public void initGrav(int client) {
 		gravActive = 1;
 		IsGameActive = true;
 		
-		for(new i = 1; i < MaxClients; i++) {
+		for(new i = 1; i <= MaxClients; i++) {
 			if(cvGravTeam.IntValue == 0) {
 				if(IsClientInGame(i) && !IsFakeClient(i)) {
 					SetEntityGravity(i, cvGravStrength.FloatValue);
@@ -895,4 +980,40 @@ public int Native_IsFreedayActive(Handle plugin, int numParams) {
 	}
 	
 	return true;
+}
+
+public int Native_ClientHasFreeday(Handle plugin, int numParams) {
+	int client = GetNativeCell(1);
+	
+	if(!IsFakeClient(client)) {
+		if(clientFreeday[client] == 1) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+public int Native_GiveClientFreeday(Handle plugin, int numParams) {
+	int client = GetNativeCell(1);
+	
+	if(!IsFakeClient(client)) {
+		clientFreeday[client] = 1;
+		ServerCommand("sm_beacon %N", client);
+		return true;
+	}
+	
+	return false;
+}
+
+public int Native_RemoveClientFreeday(Handle plugin, int numParams) {
+	int client = GetNativeCell(1);
+	
+	if(!IsFakeClient(client)) {
+		clientFreeday[client] = 0;
+		ServerCommand("sm_beacon %N", client);
+		return true;
+	}
+	
+	return false;
 }

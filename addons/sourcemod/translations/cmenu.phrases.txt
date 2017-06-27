@@ -272,4 +272,34 @@
 		"fr"	"Warden a annulé l'événement actuel!"
 	}
 	
+	"Player Freeday Entry"
+	{
+		"en"	"Give player freeday"
+		"sv"	"Ge spelare freeday"
+		"fr"	"Donner un joueur en plein air"
+	}
+	
+	"Player Freeday Title"
+	{
+		"en"	"Give freeday:"
+		"sv"	"Ge freeday:"
+		"fr"	"Donner l'affranchissement:"
+	}
+	
+	"Player Freeday Announce"
+	{
+		"#format"	"{1:N}"
+		"en"	"The warden has awarded {1} with a freeday!"
+		"sv"	"Warden har gett {1} en freeday!"
+		"fr"	"Le gardien a décerné {1} avec une journée libre!"
+	}
+	
+	"Player Freeday Removed"
+	{
+		"#format"	"{1:N}"
+		"en"	"The warden has cancelled {1}'s freeday."
+		"sv"	"Warden har tagit bort {1}'s freeday."
+		"fr"	"Le gardien a annulé le jour libre de {1}."
+	}
+	
 }
