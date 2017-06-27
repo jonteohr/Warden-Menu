@@ -60,57 +60,81 @@ Send me a message on [Steam](https://steamcommunity.com/id/hyprcsgo) or create a
 
 ## API for Developers
 ```
-/** 
-* Called when client opens the menu. 
+/**
+* Called when client opens the menu.
+*
+* @param     client index
+*/
+forward void OnCMenuOpened(int param);
+
+/**
+* Called when an event day is created.
+*/
+forward void OnEventDayCreated();
+
+/**
+* Called when an event day is aborted.
+*/
+forward void OnEventDayAborted();
+
+/**
+* Check if there is a event day currently active.
 * 
-* @param client 
-*/ 
-forward void OnCMenuOpened(int client); 
+* @return     true if yes
+*/
+native bool IsEventDayActive();
 
-/** 
-* Called when an event day is created. 
-*/ 
-forward void OnEventDayCreated(); 
+/**
+* Check if a Hide and Seek game is running.
+*
+* @return     true if yes
+*/
+native bool IsHnsActive();
 
-/** 
-* Called when an event day is aborted. 
-*/ 
-forward void OnEventDayAborted(); 
+/**
+* Check if a Gravity Freeday is running.
+*
+* @return     true if yes
+*/
+native bool IsGravFreedayActive();
 
-/** 
-* Check if there is a event day currently active. 
-*  
-* @return    true if yes 
-*/ 
-native bool IsEventDayActive(); 
+/**
+* Check if a warday is running.
+*
+* @return     true if yes
+*/
+native bool IsWarActive();
 
-/** 
-* Check if a Hide and Seek game is running. 
-* 
-* @return    true if yes 
-*/ 
-native bool IsHnsActive(); 
+/**
+* Check if a freeday is running.
+*
+* @return     true if yes
+*/
+native bool IsFreedayActive();
 
-/** 
-* Check if a Gravity Freeday is running. 
-* 
-* @return    true if yes 
-*/ 
-native bool IsGravFreedayActive(); 
+/**
+* Check if the specified client already has a freeday.
+*
+* @param     client index
+* @return     true if yes
+*/
+native bool ClientHasFreeday(int client);
 
-/** 
-* Check if a warday is running. 
-* 
-* @return    true if yes 
-*/ 
-native bool IsWarActive(); 
+/**
+* Give a client a freeday
+*
+* @param      client index
+* @return     true if successful
+*/
+native bool GiveClientFreeday(int client);
 
-/** 
-* Check if a freeday is running. 
-* 
-* @return    true if yes 
-*/ 
-native bool IsFreedayActive();  
+/*
+* Remove a client's freeday
+*
+* @param      client index
+* @return     true if successful
+*/
+native bool RemoveClientFreeday(int client);
 ```
 
 ## Todo
