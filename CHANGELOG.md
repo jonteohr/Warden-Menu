@@ -1,4 +1,4 @@
-## 1.2 (002) - 28/06-17
+## 1.2.1 - 28/06-17
 Fixed issue where the limits on event days wouldn't reset on mapchange.
 
 ## 1.2 - 27/06-17
