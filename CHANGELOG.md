@@ -1,10 +1,10 @@
-## 1.2 (002) 28/06-17
+## 1.2 (002) - 28/06-17
 Fixed issue where the limits on event days wouldn't reset on mapchange.
 
-## 1.2 27/06-17
+## 1.2 - 27/06-17
 Added option to give one or more players freeday.
 
-## 1.1c 27/06-17
+## 1.1c - 27/06-17
 Added API support
 
 ## 1.1b - 26/06-17
