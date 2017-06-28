@@ -19,7 +19,7 @@
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.2 (002)"
+#define VERSION "1.2.1 (002)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
