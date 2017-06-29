@@ -302,4 +302,47 @@
 		"fr"	"Le gardien a annulé le jour libre de {1}."
 	}
 	
+	"Choose no. Winners"
+	{
+		"en"	"Choose # of winners"
+		"sv"	"Välj antal vinnare"
+		"fr"	""
+	}
+	
+	"1 Winner Entry"
+	{
+		"en"	"1 Winner"
+		"sv"	"1 Vinnare"
+		"fr"	""
+	}
+	
+	"2 Winner Entry"
+	{
+		"en"	"2 Winners"
+		"sv"	"2 Vinnare"
+		"fr"	""
+	}
+	
+	"Start HnS"
+	{
+		"en"	"Start!"
+		"sv"	"Starta!"
+		"fr"	""
+	}
+	
+	"No Winners Selected"
+	{
+		"en"	"Cannot start Hide n Seek since you haven't selected how many winners there's supposed to be!"
+		"sv"	"Kan inte starta HnS eftersom du inte valt hur många vinnare det kommer bli!"
+		"fr"	""
+	}
+	
+	"Amount of Winners"
+	{
+		"#format"	"{1:d}"
+		"en"	"There will be {1} winner(s)!"
+		"sv"	"Det kommer bli {1} vinnare!"
+		"fr"	""
+	}
+	
 }

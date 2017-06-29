@@ -15,11 +15,12 @@
 #include <sdkhooks>
 #include <cmenu>
 #include <adminmenu>
+#include <lastrequest>
 #define REQUIRE_PLUGIN
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.2.1 (002)"
+#define VERSION "1.2.2 (013)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -47,7 +48,9 @@ int freedayTimes = 0;
 int warTimes = 0;
 int gravTimes = 0;
 
+// Misc
 int clientFreeday[MAXPLAYERS +1];
+int hnsWinners;
 
 // ## CVars ##
 ConVar cvVersion;
@@ -163,7 +166,7 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
 
 public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype) {
 	if(hnsActive == 1 && GetClientTeam(victim) == CS_TEAM_CT && cvHnSGod.IntValue == 1) {
-		if(IsClientInGame(inflictor) && GetClientTeam(inflictor) == CS_TEAM_T) {
+		if(IsClientInGame(inflictor) && GetClientTeam(inflictor) == CS_TEAM_T && !IsClientInLastRequest(inflictor)) {
 			CPrintToChat(inflictor, "%s %t", cmenuPrefix, "No Rebel HnS");
 			return Plugin_Handled;
 		}
@@ -508,7 +511,7 @@ public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2)
 					initRestFreeday(client);
 				}
 				if(StrEqual(info, CHOICE3)) {
-					initHns(client);
+					hnsConfig(client);
 				}
 				if(StrEqual(info, CHOICE4)) {
 					initWarday(client);
@@ -602,6 +605,100 @@ public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2)
 			}
 			if(StrEqual(info, CHOICE8)) {
 				Format(display, sizeof(display), "%t", "Abort Current Day");
+				return RedrawMenuItem(display);
+			}
+		}
+	}
+	
+	return 0;
+}
+
+public void hnsConfig(int client) {
+	Menu menu = new Menu(hnsConfigHandler, MENU_ACTIONS_ALL);
+	
+	char title[64];
+	Format(title, sizeof(title), "%t", "HnS Config Title");
+	
+	menu.SetTitle(title);
+	
+	menu.AddItem(CHOICE1, "Choice 1");
+	menu.AddItem(CHOICE2, "Choice 2");
+	menu.AddItem(CHOICE3, "Choice 3");
+	menu.AddItem(SPACER, "Spacer");
+	menu.AddItem(CHOICE4, "Choice 4");
+	
+	menu.ExitBackButton = true;
+	menu.Display(client, 0);
+}
+
+public int hnsConfigHandler(Menu menu, MenuAction action, int client, int param2) {
+	switch(action) {
+		case MenuAction_Display:
+		{
+			char buffer[255];
+			Format(buffer, sizeof(buffer), "%t", "Days Menu Title");
+			Panel panel = view_as<Panel>(param2);
+			panel.SetTitle(buffer);
+		}
+		case MenuAction_Select:
+		{
+			char info[32];
+			menu.GetItem(param2, info, sizeof(info));
+			
+			if(StrEqual(info, CHOICE2)) {
+				hnsWinners = 1;
+			}
+			if(StrEqual(info, CHOICE3)) {
+				hnsWinners = 2;
+			}
+			if(StrEqual(info, CHOICE4)) {
+				initHns(client, hnsWinners);
+			}
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+		case MenuAction_Cancel:
+		{
+			if(param2 == MenuCancel_ExitBack) {
+				openMenu(client);
+			}
+		}
+		case MenuAction_DrawItem:
+		{
+			int style;
+			char info[32];
+			menu.GetItem(param2, info, sizeof(info), style);
+			
+			if(StrEqual(info, CHOICE1)) {
+				return ITEMDRAW_DISABLED;
+			} else if(StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3) || StrEqual(info, CHOICE4)) {
+				return ITEMDRAW_DEFAULT;
+			} else {
+				return style;
+			}
+		}
+		case MenuAction_DisplayItem:
+		{
+			char info[32];
+			menu.GetItem(param2, info, sizeof(info));
+			char display[64];
+			
+			if(StrEqual(info, CHOICE1)) {
+				Format(display, sizeof(display), "%t", "Choose no. Winners");
+				return RedrawMenuItem(display);
+			}
+			if(StrEqual(info, CHOICE2)) {
+				Format(display, sizeof(display), "%t", "1 Winner Entry");
+				return RedrawMenuItem(display);
+			}
+			if(StrEqual(info, CHOICE3)) {
+				Format(display, sizeof(display), "%t", "2 Winner Entry");
+				return RedrawMenuItem(display);
+			}
+			if(StrEqual(info, CHOICE4)) {
+				Format(display, sizeof(display), "%t", "Start HnS");
 				return RedrawMenuItem(display);
 			}
 		}
@@ -764,26 +861,32 @@ public void abortGames() {
 	}
 }
 
-public void initHns(int client) {
-	if(cvHnSTimes.IntValue == 0) {
-		PrintHintTextToAll("%t", "HnS Begun");
-		CPrintToChatAll("{blue}-----------------------------------------------------");
-		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
-		CPrintToChatAll("{blue}-----------------------------------------------------");
-		hnsActive = 1;
-		IsGameActive = true;
-	} else if(cvHnSTimes.IntValue != 0 && hnsTimes >= cvHnSTimes.IntValue) {
-		
-		CPrintToChat(client, "%s %t", cmenuPrefix, "Too many hns", hnsTimes, cvHnSTimes.IntValue);
-		
-	} else if(cvHnSTimes.IntValue != 0 && hnsTimes < cvHnSTimes.IntValue) {
-		PrintHintTextToAll("%t", "HnS Begun");
-		CPrintToChatAll("{blue}-----------------------------------------------------");
-		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
-		CPrintToChatAll("{blue}-----------------------------------------------------");
-		hnsActive = 1;
-		IsGameActive = true;
-		hnsTimes++;
+public void initHns(int client, int winners) {
+	if(hnsWinners != 0 || hnsWinners <= 2) {
+		if(cvHnSTimes.IntValue == 0) {
+			PrintHintTextToAll("%t", "HnS Begun");
+			CPrintToChatAll("{blue}-----------------------------------------------------");
+			CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
+			CPrintToChatAll("%s %t", cmenuPrefix, "Amount of Winners", hnsWinners);
+			CPrintToChatAll("{blue}-----------------------------------------------------");
+			hnsActive = 1;
+			IsGameActive = true;
+		} else if(cvHnSTimes.IntValue != 0 && hnsTimes >= cvHnSTimes.IntValue) {
+			
+			CPrintToChat(client, "%s %t", cmenuPrefix, "Too many hns", hnsTimes, cvHnSTimes.IntValue);
+			
+		} else if(cvHnSTimes.IntValue != 0 && hnsTimes < cvHnSTimes.IntValue) {
+			PrintHintTextToAll("%t", "HnS Begun");
+			CPrintToChatAll("{blue}-----------------------------------------------------");
+			CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
+			CPrintToChatAll("%s %t", cmenuPrefix, "Amount of Winners", hnsWinners);
+			CPrintToChatAll("{blue}-----------------------------------------------------");
+			hnsActive = 1;
+			IsGameActive = true;
+			hnsTimes++;
+		}
+	} else {
+		CPrintToChat(client, "%s {red}%t", cmenuPrefix, "No Winners Selected");
 	}
 }
 
