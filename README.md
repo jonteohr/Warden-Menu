@@ -62,6 +62,17 @@ Send me a message on [Steam](https://steamcommunity.com/id/hyprcsgo) or create a
 
 ## API for Developers
 ```
+/*
+* 
+* INCLUCE FOR THE SOURCEMOD PLUGIN; WARDEN MENU
+* https://forums.alliedmods.net/showthread.php?t=298907
+* 
+*/
+#if defined cmenuincluded
+ #endinput
+#endif
+#define cmenuincluded
+
 /**
 * Called when client opens the menu.
 *
@@ -78,6 +89,11 @@ forward void OnEventDayCreated();
 * Called when an event day is aborted.
 */
 forward void OnEventDayAborted();
+
+/**
+* Called when Hide n' Seek is over
+*/
+forward void OnHnsOver();
 
 /**
 * Check if there is a event day currently active.
