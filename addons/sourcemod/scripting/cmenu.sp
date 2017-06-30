@@ -15,12 +15,11 @@
 #include <sdkhooks>
 #include <cmenu>
 #include <adminmenu>
-#include <lastrequest>
 #define REQUIRE_PLUGIN
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.2.2 (013)"
+#define VERSION "1.2.2 (014)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -51,6 +50,7 @@ int gravTimes = 0;
 // Misc
 int clientFreeday[MAXPLAYERS +1];
 int hnsWinners;
+int aliveTerrorists;
 
 // ## CVars ##
 ConVar cvVersion;
@@ -78,6 +78,7 @@ ConVar noblock;
 Handle gF_OnCMenuOpened = null;
 Handle gF_OnEventDayCreated = null;
 Handle gF_OnEventDayAborted = null;
+Handle gF_OnHnsOver = null;
 
 public Plugin myinfo = {
 	name = "[CS:GO] Warden Menu",
@@ -149,6 +150,7 @@ public OnPluginStart() {
 	gF_OnCMenuOpened = CreateGlobalForward("OnCMenuOpened", ET_Ignore, Param_Cell);
 	gF_OnEventDayCreated = CreateGlobalForward("OnEventDayCreated", ET_Ignore);
 	gF_OnEventDayAborted = CreateGlobalForward("OnEventDayAborted", ET_Ignore);
+	gF_OnHnsOver = CreateGlobalForward("OnHnsOver", ET_Ignore);
 	
 }
 
@@ -162,11 +164,26 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
 	if(EJBW_IsClientWarden(client)) {
 		abortGames();
 	}
+	
+	if(GetClientTeam(client) == CS_TEAM_T) {
+		aliveTerrorists--;
+	}
+	
+	// Check if HnS should end
+	if(hnsWinners == aliveTerrorists) {
+		abortGames();
+		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Over");
+		
+		Call_StartForward(gF_OnHnsOver);
+		Call_Finish();
+	} else {
+		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Players Left", aliveTerrorists);
+	}
 }
 
 public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float &damage, int &damagetype) {
 	if(hnsActive == 1 && GetClientTeam(victim) == CS_TEAM_CT && cvHnSGod.IntValue == 1) {
-		if(IsClientInGame(inflictor) && GetClientTeam(inflictor) == CS_TEAM_T && !IsClientInLastRequest(inflictor)) {
+		if(IsClientInGame(inflictor) && GetClientTeam(inflictor) == CS_TEAM_T) {
 			CPrintToChat(inflictor, "%s %t", cmenuPrefix, "No Rebel HnS");
 			return Plugin_Handled;
 		}
@@ -182,6 +199,11 @@ public void OnRoundStart(Event event, const char[] name, bool dontBroadcast) {
 		if(ClientHasFreeday(i)) {
 			RemoveClientFreeday(i);
 		}
+		if(IsClientInGame(i)) {
+			if(GetClientTeam(i) == CS_TEAM_T) {
+				aliveTerrorists++;
+			}
+		}
 	}
 }
 
@@ -190,6 +212,11 @@ public void OnMapStart() {
 	for(new i = 1; i <= MaxClients; i++) {
 		if(ClientHasFreeday(i)) {
 			RemoveClientFreeday(i);
+		}
+		if(IsClientInGame(i)) {
+			if(GetClientTeam(i) == CS_TEAM_T) {
+				aliveTerrorists++;
+			}
 		}
 	}
 	
@@ -636,7 +663,7 @@ public int hnsConfigHandler(Menu menu, MenuAction action, int client, int param2
 		case MenuAction_Display:
 		{
 			char buffer[255];
-			Format(buffer, sizeof(buffer), "%t", "Days Menu Title");
+			Format(buffer, sizeof(buffer), "%t", "HnS Config Title");
 			Panel panel = view_as<Panel>(param2);
 			panel.SetTitle(buffer);
 		}
@@ -647,9 +674,11 @@ public int hnsConfigHandler(Menu menu, MenuAction action, int client, int param2
 			
 			if(StrEqual(info, CHOICE2)) {
 				hnsWinners = 1;
+				CPrintToChat(client, "%s %t", cmenuPrefix, "Winners Selected", hnsWinners);
 			}
 			if(StrEqual(info, CHOICE3)) {
 				hnsWinners = 2;
+				CPrintToChat(client, "%s %t", cmenuPrefix, "Winners Selected", hnsWinners);
 			}
 			if(StrEqual(info, CHOICE4)) {
 				initHns(client, hnsWinners);

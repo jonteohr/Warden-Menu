@@ -27,6 +27,11 @@ forward void OnEventDayCreated();
 forward void OnEventDayAborted();
 
 /**
+* Called when Hide n' Seek is over
+*/
+forward void OnHnsOver();
+
+/**
 * Check if there is a event day currently active.
 * 
 * @return     true if yes

@@ -302,10 +302,17 @@
 		"fr"	"Le gardien a annulé le jour libre de {1}."
 	}
 	
+	"HnS Config Title"
+	{
+		"en"	"HnS Configuration"
+		"sv"	"HnS Konfiguration"
+		"fr"	""
+	}
+	
 	"Choose no. Winners"
 	{
-		"en"	"Choose # of winners"
-		"sv"	"Välj antal vinnare"
+		"en"	"Choose # of winners:"
+		"sv"	"Välj antal vinnare:"
 		"fr"	""
 	}
 	
@@ -342,6 +349,29 @@
 		"#format"	"{1:d}"
 		"en"	"There will be {1} winner(s)!"
 		"sv"	"Det kommer bli {1} vinnare!"
+		"fr"	""
+	}
+	
+	"Winners Selected"
+	{
+		"#format"	"{1:d}"
+		"en"	"You've selected {1} winner(s)."
+		"sv"	"Du har valt {1} vinnare."
+		"fr"	""
+	}
+	
+	"HnS Over"
+	{
+		"en"	"Hide n' Seek is over, we have our winners!"
+		"sv"	"HnS är över, vi har våra vinnare!"
+		"fr"	""
+	}
+	
+	"HnS Players Left"
+	{
+		"#format"	"{1:d}"
+		"en"	"There are {1} players left in the competition."
+		"sv"	"Det är {1} spelare kvar i tävlingen!"
 		"fr"	""
 	}
 	
