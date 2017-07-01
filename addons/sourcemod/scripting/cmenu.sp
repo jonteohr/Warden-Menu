@@ -19,7 +19,7 @@
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.2.2 (014)"
+#define VERSION "1.2.2 (015)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -169,15 +169,17 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
 		aliveTerrorists--;
 	}
 	
-	// Check if HnS should end
-	if(hnsWinners == aliveTerrorists) {
-		abortGames();
-		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Over");
-		
-		Call_StartForward(gF_OnHnsOver);
-		Call_Finish();
-	} else {
-		CPrintToChatAll("%s %t", cmenuPrefix, "HnS Players Left", aliveTerrorists);
+	if(IsHnsActive()) {
+		// Check if HnS should end
+		if(hnsWinners == aliveTerrorists) {
+			abortGames();
+			CPrintToChatAll("%s %t", cmenuPrefix, "HnS Over");
+			
+			Call_StartForward(gF_OnHnsOver);
+			Call_Finish();
+		} else {
+			CPrintToChatAll("%s %t", cmenuPrefix, "HnS Players Left", aliveTerrorists);
+		}
 	}
 }
 
@@ -195,12 +197,13 @@ public Action OnTakeDamageAlive(int victim, int &attacker, int &inflictor, float
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast) {
 	abortGames();
 	SetConVarInt(noblock, cvNoblockStandard.IntValue, true, true);
+	aliveTerrorists = 0;
 	for(new i = 1; i <= MaxClients; i++) {
 		if(ClientHasFreeday(i)) {
 			RemoveClientFreeday(i);
 		}
 		if(IsClientInGame(i)) {
-			if(GetClientTeam(i) == CS_TEAM_T) {
+			if(GetClientTeam(i) == CS_TEAM_T && IsPlayerAlive(i)) {
 				aliveTerrorists++;
 			}
 		}
@@ -214,7 +217,7 @@ public void OnMapStart() {
 			RemoveClientFreeday(i);
 		}
 		if(IsClientInGame(i)) {
-			if(GetClientTeam(i) == CS_TEAM_T) {
+			if(GetClientTeam(i) == CS_TEAM_T && IsPlayerAlive(i)) {
 				aliveTerrorists++;
 			}
 		}
@@ -648,11 +651,8 @@ public void hnsConfig(int client) {
 	
 	menu.SetTitle(title);
 	
-	menu.AddItem(CHOICE1, "Choice 1");
 	menu.AddItem(CHOICE2, "Choice 2");
 	menu.AddItem(CHOICE3, "Choice 3");
-	menu.AddItem(SPACER, "Spacer");
-	menu.AddItem(CHOICE4, "Choice 4");
 	
 	menu.ExitBackButton = true;
 	menu.Display(client, 0);
@@ -674,13 +674,10 @@ public int hnsConfigHandler(Menu menu, MenuAction action, int client, int param2
 			
 			if(StrEqual(info, CHOICE2)) {
 				hnsWinners = 1;
-				CPrintToChat(client, "%s %t", cmenuPrefix, "Winners Selected", hnsWinners);
+				initHns(client, hnsWinners);
 			}
 			if(StrEqual(info, CHOICE3)) {
 				hnsWinners = 2;
-				CPrintToChat(client, "%s %t", cmenuPrefix, "Winners Selected", hnsWinners);
-			}
-			if(StrEqual(info, CHOICE4)) {
 				initHns(client, hnsWinners);
 			}
 		}
@@ -691,7 +688,7 @@ public int hnsConfigHandler(Menu menu, MenuAction action, int client, int param2
 		case MenuAction_Cancel:
 		{
 			if(param2 == MenuCancel_ExitBack) {
-				openMenu(client);
+				openDaysMenu(client);
 			}
 		}
 		case MenuAction_DrawItem:
@@ -700,9 +697,7 @@ public int hnsConfigHandler(Menu menu, MenuAction action, int client, int param2
 			char info[32];
 			menu.GetItem(param2, info, sizeof(info), style);
 			
-			if(StrEqual(info, CHOICE1)) {
-				return ITEMDRAW_DISABLED;
-			} else if(StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3) || StrEqual(info, CHOICE4)) {
+			if(StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3)) {
 				return ITEMDRAW_DEFAULT;
 			} else {
 				return style;
@@ -714,20 +709,12 @@ public int hnsConfigHandler(Menu menu, MenuAction action, int client, int param2
 			menu.GetItem(param2, info, sizeof(info));
 			char display[64];
 			
-			if(StrEqual(info, CHOICE1)) {
-				Format(display, sizeof(display), "%t", "Choose no. Winners");
-				return RedrawMenuItem(display);
-			}
 			if(StrEqual(info, CHOICE2)) {
 				Format(display, sizeof(display), "%t", "1 Winner Entry");
 				return RedrawMenuItem(display);
 			}
 			if(StrEqual(info, CHOICE3)) {
 				Format(display, sizeof(display), "%t", "2 Winner Entry");
-				return RedrawMenuItem(display);
-			}
-			if(StrEqual(info, CHOICE4)) {
-				Format(display, sizeof(display), "%t", "Start HnS");
 				return RedrawMenuItem(display);
 			}
 		}

@@ -276,14 +276,14 @@
 	{
 		"en"	"Give player freeday"
 		"sv"	"Ge spelare freeday"
-		"fr"	""
+		"fr"	"Donner un joueur en plein air"
 	}
 	
 	"Player Freeday Title"
 	{
 		"en"	"Give freeday:"
 		"sv"	"Ge freeday:"
-		"fr"	""
+		"fr"	"Donner l'affranchissement:"
 	}
 	
 	"Player Freeday Announce"
@@ -291,7 +291,7 @@
 		"#format"	"{1:N}"
 		"en"	"The warden has awarded {1} with a freeday!"
 		"sv"	"Warden har gett {1} en freeday!"
-		"fr"	""
+		"fr"	"Le gardien a décerné {1} avec une journée libre!"
 	}
 	
 	"Player Freeday Removed"
@@ -299,10 +299,17 @@
 		"#format"	"{1:N}"
 		"en"	"The warden has cancelled {1}'s freeday."
 		"sv"	"Warden har tagit bort {1}'s freeday."
-		"fr"	""
+		"fr"	"Le gardien a annulé le jour libre de {1}."
 	}
 	
 	"HnS Config Title"
+	{
+		"en"	"HnS Configuration"
+		"sv"	"HnS Konfiguration"
+		"fr"	""
+	}
+	
+	"Choose no. Winners"
 	{
 		"en"	"Choose # of winners:"
 		"sv"	"Välj antal vinnare:"
@@ -313,21 +320,28 @@
 	{
 		"en"	"1 Winner"
 		"sv"	"1 Vinnare"
-		"fr"	""
+		"fr"	"1 Gagnant"
 	}
 	
 	"2 Winner Entry"
 	{
 		"en"	"2 Winners"
 		"sv"	"2 Vinnare"
-		"fr"	""
+		"fr"	"2 Gagnants"
+	}
+	
+	"Start HnS"
+	{
+		"en"	"Start!"
+		"sv"	"Starta!"
+		"fr"	"Départ!"
 	}
 	
 	"No Winners Selected"
 	{
 		"en"	"Cannot start Hide n Seek since you haven't selected how many winners there's supposed to be!"
 		"sv"	"Kan inte starta HnS eftersom du inte valt hur många vinnare det kommer bli!"
-		"fr"	""
+		"fr"	"Le cache-cache ne peut pas démarrer puisque vous n'avez pas sélectionné le nombre de gagnants qu'il doit avoir!"
 	}
 	
 	"Amount of Winners"
@@ -335,14 +349,22 @@
 		"#format"	"{1:d}"
 		"en"	"There will be {1} winner(s)!"
 		"sv"	"Det kommer bli {1} vinnare!"
-		"fr"	""
+		"fr"	"Il y aura {1} gagnant(s)!"
+	}
+	
+	"Winners Selected"
+	{
+		"#format"	"{1:d}"
+		"en"	"You've selected {1} winner(s)."
+		"sv"	"Du har valt {1} vinnare."
+		"fr"	"Vous avez sélectionné {1} gagnant(s)!"
 	}
 	
 	"HnS Over"
 	{
-		"en"	"Hide n' Seek is over, we have our winner(s)!"
+		"en"	"Hide n' Seek is over, we have our winners!"
 		"sv"	"HnS är över, vi har våra vinnare!"
-		"fr"	""
+		"fr"	"Le cache-cache est terminé, nous avons nos gagnants"
 	}
 	
 	"HnS Players Left"
@@ -350,7 +372,7 @@
 		"#format"	"{1:d}"
 		"en"	"There are {1} players left in the competition."
 		"sv"	"Det är {1} spelare kvar i tävlingen!"
-		"fr"	""
+		"fr"	"Il reste {1} joueurs dans la compétition"
 	}
 	
 }

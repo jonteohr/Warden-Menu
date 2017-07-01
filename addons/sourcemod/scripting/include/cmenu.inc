@@ -27,7 +27,7 @@ forward void OnEventDayCreated();
 forward void OnEventDayAborted();
 
 /**
-* Called when Hide n' Seek is over
+* Called when Hide n' Seek is won
 */
 forward void OnHnsOver();
 
