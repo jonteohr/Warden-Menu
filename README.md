@@ -150,9 +150,10 @@ native bool GiveClientFreeday(int client);
 * Remove a client's freeday
 *
 * @param      client index
+* @param      set a beacon
 * @return     true if successful
 */
-native bool RemoveClientFreeday(int client);
+native bool RemoveClientFreeday(int client, bool beacon);
 ```
 
 ## Todo
