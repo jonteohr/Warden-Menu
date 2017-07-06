@@ -19,7 +19,7 @@
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.2.2 (015)"
+#define VERSION "1.2.3 (006)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -128,8 +128,6 @@ public OnPluginStart() {
 	
 	noblock = FindConVar("mp_solid_teammates");
 	
-	// CSetPrefix("[{blue}WardenMenu{default}]"); ## To be tested later on ##
-	
 	RegAdminCmd("sm_abortgames", sm_abortgames, ADMFLAG_BAN);
 	RegConsoleCmd("sm_cmenu", sm_cmenu);
 	RegConsoleCmd("sm_wmenu", sm_cmenu);
@@ -200,7 +198,7 @@ public void OnRoundStart(Event event, const char[] name, bool dontBroadcast) {
 	aliveTerrorists = 0;
 	for(new i = 1; i <= MaxClients; i++) {
 		if(ClientHasFreeday(i)) {
-			RemoveClientFreeday(i);
+			RemoveClientFreeday(i, false);
 		}
 		if(IsClientInGame(i)) {
 			if(GetClientTeam(i) == CS_TEAM_T && IsPlayerAlive(i)) {
@@ -214,7 +212,7 @@ public void OnMapStart() {
 	abortGames();
 	for(new i = 1; i <= MaxClients; i++) {
 		if(ClientHasFreeday(i)) {
-			RemoveClientFreeday(i);
+			RemoveClientFreeday(i, false);
 		}
 		if(IsClientInGame(i)) {
 			if(GetClientTeam(i) == CS_TEAM_T && IsPlayerAlive(i)) {
@@ -457,7 +455,7 @@ public int playerFreedayHandler(Menu menu, MenuAction action, int client, int pa
 					GiveClientFreeday(target);
 					CPrintToChatAll("%s %t", cmenuPrefix, "Player Freeday Announce", target);
 				} else {
-					RemoveClientFreeday(target);
+					RemoveClientFreeday(target, true);
 					CPrintToChatAll("%s %t", cmenuPrefix, "Player Freeday Removed", target);
 				}
 				
@@ -880,19 +878,18 @@ public void abortGames() {
 public void initHns(int client, int winners) {
 	if(hnsWinners != 0 || hnsWinners <= 2) {
 		if(cvHnSTimes.IntValue == 0) {
-			PrintHintTextToAll("%t", "HnS Begun");
 			CPrintToChatAll("{blue}-----------------------------------------------------");
 			CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
 			CPrintToChatAll("%s %t", cmenuPrefix, "Amount of Winners", hnsWinners);
 			CPrintToChatAll("{blue}-----------------------------------------------------");
 			hnsActive = 1;
 			IsGameActive = true;
+			CreateTimer(0.5, HnSInfo, _, TIMER_REPEAT);
 		} else if(cvHnSTimes.IntValue != 0 && hnsTimes >= cvHnSTimes.IntValue) {
 			
 			CPrintToChat(client, "%s %t", cmenuPrefix, "Too many hns", hnsTimes, cvHnSTimes.IntValue);
 			
 		} else if(cvHnSTimes.IntValue != 0 && hnsTimes < cvHnSTimes.IntValue) {
-			PrintHintTextToAll("%t", "HnS Begun");
 			CPrintToChatAll("{blue}-----------------------------------------------------");
 			CPrintToChatAll("%s %t", cmenuPrefix, "HnS Begun");
 			CPrintToChatAll("%s %t", cmenuPrefix, "Amount of Winners", hnsWinners);
@@ -900,10 +897,30 @@ public void initHns(int client, int winners) {
 			hnsActive = 1;
 			IsGameActive = true;
 			hnsTimes++;
+			CreateTimer(0.5, HnSInfo, _, TIMER_REPEAT);
 		}
 	} else {
 		CPrintToChat(client, "%s {red}%t", cmenuPrefix, "No Winners Selected");
 	}
+}
+
+public void OnHnsOver() {
+	PrintHintTextToAll("%t", "Small HNS Over");
+}
+
+public Action HnSInfo(Handle timer) {
+	if(IsHnsActive()) {
+		char msg1[64];
+		Format(msg1, sizeof(msg1), "%t", "Contesters Left", aliveTerrorists);
+		
+		char msg2[64];
+		Format(msg2, sizeof(msg2), "%t", "HnS Winners Info", hnsWinners);
+		
+		PrintHintTextToAll("%s\n%s", msg1, msg2);
+		return Plugin_Continue;
+	}
+	
+	return Plugin_Continue;
 }
 
 public void initFreeday(int client) {
@@ -1138,10 +1155,13 @@ public int Native_GiveClientFreeday(Handle plugin, int numParams) {
 
 public int Native_RemoveClientFreeday(Handle plugin, int numParams) {
 	int client = GetNativeCell(1);
+	bool beacon = GetNativeCell(2);
 	
 	if(IsClientInGame(client)) {
 		clientFreeday[client] = 0;
-		ServerCommand("sm_beacon %N", client);
+		if(beacon) {
+			ServerCommand("sm_beacon %N", client);
+		}
 		return true;
 	}
 	
