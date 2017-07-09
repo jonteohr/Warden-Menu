@@ -19,7 +19,7 @@
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.2.3 (006)"
+#define VERSION "1.2.3 (009)"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -154,6 +154,13 @@ public OnPluginStart() {
 
 public void OnClientPutInServer(int client) {
 	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamageAlive);
+}
+public void OnClientDisconnect(int client) {
+	if(IsHnsActive()) {
+		if(GetClientTeam(client) == CS_TEAM_T && IsClientInGame(client) && IsPlayerAlive(client)) {
+			aliveTerrorists--;
+		}
+	}
 }
 
 public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast) {
@@ -347,6 +354,7 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 		{
 			char info[32];
 			menu.GetItem(param2, info, sizeof(info));
+			openMenu(client);
 			if(StrEqual(info, CHOICE1)) {
 				openWeaponsMenu(client);
 			}
@@ -446,7 +454,7 @@ public int playerFreedayHandler(Menu menu, MenuAction action, int client, int pa
 		}
 		case MenuAction_Select:
 		{
-		
+			playerFreeday(client);
 			char info[MAX_NAME_LENGTH];
 			if(menu.GetItem(param2, info, sizeof(info))) {
 				int target = GetClientOfUserId(StringToInt(info));
@@ -460,6 +468,7 @@ public int playerFreedayHandler(Menu menu, MenuAction action, int client, int pa
 				}
 				
 			}
+			
 			
 		}
 		case MenuAction_End:
@@ -531,6 +540,7 @@ public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2)
 		{
 			char info[32];
 			menu.GetItem(param2, info, sizeof(info));
+			
 			if(!IsGameActive) {
 				if(StrEqual(info, CHOICE1)) {
 					initFreeday(client);
@@ -754,6 +764,7 @@ public int weaponsMenuHandler(Menu menu, MenuAction action, int client, int para
 		{
 			char info[32];
 			menu.GetItem(param2, info, sizeof(info));
+			openWeaponsMenu(client);
 			
 			if(StrEqual(info, CHOICE1)) {
 				if(IsClientInGame(client)) {
