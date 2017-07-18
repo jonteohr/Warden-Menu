@@ -61,6 +61,7 @@ Want to help translate?
 Send me a message on [Steam](https://steamcommunity.com/id/hyprcsgo) or create an [Issue](https://github.com/condolent/Warden-Menu/issues).
 
 ## API for Developers
+**Natives**
 ```
 /*
 * 
@@ -72,28 +73,6 @@ Send me a message on [Steam](https://steamcommunity.com/id/hyprcsgo) or create a
  #endinput
 #endif
 #define cmenuincluded
-
-/**
-* Called when client opens the menu.
-*
-* @param     client index
-*/
-forward void OnCMenuOpened(int param);
-
-/**
-* Called when an event day is created.
-*/
-forward void OnEventDayCreated();
-
-/**
-* Called when an event day is aborted.
-*/
-forward void OnEventDayAborted();
-
-/**
-* Called when Hide n' Seek is won
-*/
-forward void OnHnsOver();
 
 /**
 * Check if there is a event day currently active.
@@ -154,6 +133,20 @@ native bool GiveClientFreeday(int client);
 * @return     true if successful
 */
 native bool RemoveClientFreeday(int client, bool beacon);
+```
+**Forwards**
+```
+forward OnCMenuOpened(int client)
+   - Called when a warden opens the warden menu. Also called when a player becomes a warden if sm_cmenu_auto_open is set to 1.
+
+forward OnEventDayCreated()
+   - Called when an event day is created.
+
+forward OnEventDayAborted()
+   - Called when an event day is aborted.
+
+forward OnHnsOver()
+   - Called when Hide and Seek is won.
 ```
 
 ## Todo
