@@ -1,6 +1,6 @@
 /*
 * 
-* INCLUCE FOR THE SOURCEMOD PLUGIN; WARDEN MENU
+* INCLUDE FOR THE SOURCEMOD PLUGIN; WARDEN MENU
 * https://forums.alliedmods.net/showthread.php?t=298907
 * 
 */
@@ -8,28 +8,6 @@
  #endinput
 #endif
 #define cmenuincluded
-
-/**
-* Called when client opens the menu.
-*
-* @param     client index
-*/
-forward void OnCMenuOpened(int param);
-
-/**
-* Called when an event day is created.
-*/
-forward void OnEventDayCreated();
-
-/**
-* Called when an event day is aborted.
-*/
-forward void OnEventDayAborted();
-
-/**
-* Called when Hide n' Seek is won
-*/
-forward void OnHnsOver();
 
 /**
 * Check if there is a event day currently active.
@@ -82,7 +60,7 @@ native bool ClientHasFreeday(int client);
 */
 native bool GiveClientFreeday(int client);
 
-/*
+/**
 * Remove a client's freeday
 *
 * @param      client index
