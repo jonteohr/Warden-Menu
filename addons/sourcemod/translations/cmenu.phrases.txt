@@ -380,7 +380,6 @@
 		"#format"	"{1:d}"
 		"en"	"<font color='#41A0F4'><i>Contesters left:</i></font> {1}"
 		"sv"	"<font color='#41A0F4'><i>Deltagare kvar:</i></font> {1}"
-		"fr"	""
 	}
 	
 	"HnS Winners Info"
@@ -388,14 +387,30 @@
 		"#format"	"{1:d}"
 		"en"	"<font color='#BA80F0'><b>{1} winners</b></font>"
 		"sv"	"<font color='#BA80F0'><b>{1} vinnare</b></font>"
-		"fr"	""
 	}
 	
 	"Small HNS Over"
 	{
 		"en"	"<font color='#42f456'><b>HnS is over!</b></font>"
 		"sv"	"<font color='#42f456'><b>HnS är över!</b></font>"
-		"fr"	""
+	}
+	
+	"Warden Death Announce"
+	{
+		"en"	"The warden has died! A new warden can now be appointed!"
+		"sv"	"Warden har dött, en ny warden kan nu ta över!"
+	}
+	
+	"Toggle doors"
+	{
+		"en"	"Toggle cell doors"
+		"sv"	"Öppna/Stäng cellar"
+	}
+	
+	"Doors Opened"
+	{
+		"en"	"You toggled the cell doors."
+		"sv"	"Du växlade celldörrarna."
 	}
 	
 }

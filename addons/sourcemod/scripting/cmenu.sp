@@ -15,11 +15,12 @@
 #include <sdkhooks>
 #include <cmenu>
 #include <adminmenu>
+#include <smartjaildoors>
 #define REQUIRE_PLUGIN
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.2.3 (009)"
+#define VERSION "1.2.4"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -72,6 +73,7 @@ ConVar cvNoblock;
 ConVar cvNoblockStandard;
 ConVar cvEnableWeapons;
 ConVar cvEnablePlayerFreeday;
+ConVar cvEnableDoors;
 
 ConVar noblock;
 
@@ -125,6 +127,7 @@ public OnPluginStart() {
 	cvEnableWeapons = CreateConVar("sm_cmenu_weapons", "1", "Add an option for giving the warden a list of weapons via the menu?\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvRestFreeday = CreateConVar("sm_cmenu_restricted_freeday", "1", "Add an option for a restricted freeday in the menu?\nThis event uses the same configuration as a normal freeday.\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvEnablePlayerFreeday = CreateConVar("sm_cmenu_player_freeday", "1", "Add an option for giving a specific player a freeday in the menu?\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	cvEnableDoors = CreateConVar("sm_cmenu_doors", "1", "Add an option for opening doors via the menu.\n0 = Disable.\n1 = Enable", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
 	noblock = FindConVar("mp_solid_teammates");
 	
@@ -133,6 +136,7 @@ public OnPluginStart() {
 	RegConsoleCmd("sm_wmenu", sm_cmenu);
 	RegConsoleCmd("sm_noblock", sm_noblock);
 	RegConsoleCmd("sm_days", sm_days);
+	RegConsoleCmd("sm_open", sm_open);
 	
 	//HookEvent("player_hurt", OnPlayerHurt);
 	HookEvent("player_death", OnPlayerDeath);
@@ -243,6 +247,19 @@ public void EJBW_OnWardenCreatedByUser(int client) {
 	}
 }
 
+public void EJBW_OnWardenDeath(int client) {
+	CPrintToChatAll("%s {red}%t", cmenuPrefix, "Warden Death Announce");
+}
+
+public Action sm_open(int client, int args) {
+	if(IsClientInGame(client) || EJBW_IsClientWarden(client)) {
+		SJD_ToggleDoors();
+		CPrintToChat(client, "%s %t", cmenuPrefix, "Doors Opened");
+	} else {
+		CPrintToChat(client, "%s %t", cmenuPrefix, "Not Warden");
+	}
+}
+
 public Action sm_cmenu(int client, int args) {
 	
 	if(IsClientInGame(client)) {
@@ -320,16 +337,25 @@ public void openMenu(int client) {
 	Format(title, sizeof(title), "%t", "Warden Menu Title");
 	
 	menu.SetTitle(title);
+	
 	if(cvEnableWeapons.IntValue == 1) {
 		menu.AddItem(CHOICE1, "Choice 1"); // Weapons
 	}
+	
 	menu.AddItem(CHOICE2, "Choice 2"); // Event Days
+	
 	if(cvEnablePlayerFreeday.IntValue == 1) {
 		menu.AddItem(CHOICE4, "Choice 4"); // Player Freeday
 	}
+	
+	if(cvEnableDoors.IntValue == 1) {
+		menu.AddItem(CHOICE5, "Choice 5"); // Open Doors
+	}
+	
 	if(cvNoblock.IntValue == 1) {
 		menu.AddItem(CHOICE3, "Choice 3"); // Noblock
 	}
+	
 	menu.AddItem(CHOICE8, "Choice 8"); // Leave warden
 	
 	menu.Display(client, 0);
@@ -346,7 +372,7 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 		case MenuAction_Display:
 		{
 			char buffer[255];
-			Format(buffer, sizeof(buffer), "%t", "Warden Menu Title");
+			Format(buffer, sizeof(buffer), "%t\n----------------", "Warden Menu Title");
 			Panel panel = view_as<Panel>(param2);
 			panel.SetTitle(buffer);
 		}
@@ -354,21 +380,28 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 		{
 			char info[32];
 			menu.GetItem(param2, info, sizeof(info));
-			openMenu(client);
-			if(StrEqual(info, CHOICE1)) {
-				openWeaponsMenu(client);
-			}
-			if(StrEqual(info, CHOICE2)) {
-				openDaysMenu(client);
-			}
-			if(StrEqual(info, CHOICE3)) {
-				toggleNoblock();
-			}
-			if(StrEqual(info, CHOICE4)) {
-				playerFreeday(client);
-			}
-			if(StrEqual(info, CHOICE8)) {
-				FakeClientCommand(client, "sm_uw");
+			if(EJBW_IsClientWarden(client)) {
+				if(!StrEqual(info, CHOICE8)) {
+					openMenu(client);
+				}
+				if(StrEqual(info, CHOICE1)) {
+					openWeaponsMenu(client);
+				}
+				if(StrEqual(info, CHOICE2)) {
+					openDaysMenu(client);
+				}
+				if(StrEqual(info, CHOICE3)) {
+					toggleNoblock();
+				}
+				if(StrEqual(info, CHOICE4)) {
+					playerFreeday(client);
+				}
+				if(StrEqual(info, CHOICE5)) {
+					SJD_ToggleDoors();
+				}
+				if(StrEqual(info, CHOICE8)) {
+					FakeClientCommand(client, "sm_uw");
+				}
 			}
 		}
 		case MenuAction_End:
@@ -390,6 +423,8 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 			} else if(StrEqual(info, CHOICE3)) {
 				return ITEMDRAW_DEFAULT;
 			} else if(StrEqual(info, CHOICE4)) {
+				return ITEMDRAW_DEFAULT;
+			} else if(StrEqual(info, CHOICE5)) {
 				return ITEMDRAW_DEFAULT;
 			} else if(StrEqual(info, SEP)) {
 				return ITEMDRAW_DISABLED;
@@ -420,8 +455,12 @@ public int WardenMenuHandler(Menu menu, MenuAction action, int client, int param
 				Format(display, sizeof(display), "%t", "Player Freeday Entry");
 				return RedrawMenuItem(display);
 			}
+			if(StrEqual(info, CHOICE5)) {
+				Format(display, sizeof(display), "%t", "Toggle doors");
+				return RedrawMenuItem(display);
+			}
 			if(StrEqual(info, CHOICE8)) {
-				Format(display, sizeof(display), "%t", "Leave Warden");
+				Format(display, sizeof(display), "%t\n----------------", "Leave Warden");
 				return RedrawMenuItem(display);
 			}
 		}
@@ -456,19 +495,20 @@ public int playerFreedayHandler(Menu menu, MenuAction action, int client, int pa
 		{
 			playerFreeday(client);
 			char info[MAX_NAME_LENGTH];
-			if(menu.GetItem(param2, info, sizeof(info))) {
-				int target = GetClientOfUserId(StringToInt(info));
-				
-				if(!ClientHasFreeday(target)) {
-					GiveClientFreeday(target);
-					CPrintToChatAll("%s %t", cmenuPrefix, "Player Freeday Announce", target);
-				} else {
-					RemoveClientFreeday(target, true);
-					CPrintToChatAll("%s %t", cmenuPrefix, "Player Freeday Removed", target);
+			if(EJBW_IsClientWarden(client)) {
+				if(menu.GetItem(param2, info, sizeof(info))) {
+					int target = GetClientOfUserId(StringToInt(info));
+					
+					if(!ClientHasFreeday(target)) {
+						GiveClientFreeday(target);
+						CPrintToChatAll("%s %t", cmenuPrefix, "Player Freeday Announce", target);
+					} else {
+						RemoveClientFreeday(target, true);
+						CPrintToChatAll("%s %t", cmenuPrefix, "Player Freeday Removed", target);
+					}
+					
 				}
-				
 			}
-			
 			
 		}
 		case MenuAction_End:
@@ -540,32 +580,33 @@ public int DaysMenuHandler(Menu menu, MenuAction action, int client, int param2)
 		{
 			char info[32];
 			menu.GetItem(param2, info, sizeof(info));
-			
-			if(!IsGameActive) {
-				if(StrEqual(info, CHOICE1)) {
-					initFreeday(client);
-				}
-				if(StrEqual(info, CHOICE2)) {
-					initRestFreeday(client);
-				}
-				if(StrEqual(info, CHOICE3)) {
-					hnsConfig(client);
-				}
-				if(StrEqual(info, CHOICE4)) {
-					initWarday(client);
-				}
-				if(StrEqual(info, CHOICE5)) {
-					initGrav(client);
-					Call_StartForward(gF_OnEventDayCreated);
-					Call_Finish();
-				}
-			} else {
-				if(StrEqual(info, CHOICE8)) {
-					abortGames();
-					CPrintToChatAll("%s %t", cmenuPrefix, "Warden Aborted");
-					PrintHintTextToAll("%t", "Warden Aborted");
-				} else if(StrEqual(info, CHOICE1) || StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3) || StrEqual(info, CHOICE4) || StrEqual(info, CHOICE5)) {
-					CPrintToChat(client, "%s %t", cmenuPrefix, "Cannot Exec Game");
+			if(EJBW_IsClientWarden(client)) {
+				if(!IsGameActive) {
+					if(StrEqual(info, CHOICE1)) {
+						initFreeday(client);
+					}
+					if(StrEqual(info, CHOICE2)) {
+						initRestFreeday(client);
+					}
+					if(StrEqual(info, CHOICE3)) {
+						hnsConfig(client);
+					}
+					if(StrEqual(info, CHOICE4)) {
+						initWarday(client);
+					}
+					if(StrEqual(info, CHOICE5)) {
+						initGrav(client);
+						Call_StartForward(gF_OnEventDayCreated);
+						Call_Finish();
+					}
+				} else {
+					if(StrEqual(info, CHOICE8)) {
+						abortGames();
+						CPrintToChatAll("%s %t", cmenuPrefix, "Warden Aborted");
+						PrintHintTextToAll("%t", "Warden Aborted");
+					} else if(StrEqual(info, CHOICE1) || StrEqual(info, CHOICE2) || StrEqual(info, CHOICE3) || StrEqual(info, CHOICE4) || StrEqual(info, CHOICE5)) {
+						CPrintToChat(client, "%s %t", cmenuPrefix, "Cannot Exec Game");
+					}
 				}
 			}
 		}
@@ -679,14 +720,15 @@ public int hnsConfigHandler(Menu menu, MenuAction action, int client, int param2
 		{
 			char info[32];
 			menu.GetItem(param2, info, sizeof(info));
-			
-			if(StrEqual(info, CHOICE2)) {
-				hnsWinners = 1;
-				initHns(client, hnsWinners);
-			}
-			if(StrEqual(info, CHOICE3)) {
-				hnsWinners = 2;
-				initHns(client, hnsWinners);
+			if(EJBW_IsClientWarden(client)) {
+				if(StrEqual(info, CHOICE2)) {
+					hnsWinners = 1;
+					initHns(client, hnsWinners);
+				}
+				if(StrEqual(info, CHOICE3)) {
+					hnsWinners = 2;
+					initHns(client, hnsWinners);
+				}
 			}
 		}
 		case MenuAction_End:
@@ -764,41 +806,44 @@ public int weaponsMenuHandler(Menu menu, MenuAction action, int client, int para
 		{
 			char info[32];
 			menu.GetItem(param2, info, sizeof(info));
-			openWeaponsMenu(client);
 			
-			if(StrEqual(info, CHOICE1)) {
-				if(IsClientInGame(client)) {
-					GivePlayerItem(client, "weapon_ak47");
+			if(EJBW_IsClientWarden(client)) {
+				openWeaponsMenu(client);
+				
+				if(StrEqual(info, CHOICE1)) {
+					if(IsClientInGame(client)) {
+						GivePlayerItem(client, "weapon_ak47");
+					}
 				}
-			}
-			if(StrEqual(info, CHOICE2)) {
-				if(IsClientInGame(client)) {
-					GivePlayerItem(client, "weapon_m4a1_silencer");
+				if(StrEqual(info, CHOICE2)) {
+					if(IsClientInGame(client)) {
+						GivePlayerItem(client, "weapon_m4a1_silencer");
+					}
 				}
-			}
-			if(StrEqual(info, CHOICE3)) {
-				if(IsClientInGame(client)) {
-					GivePlayerItem(client, "weapon_m4a1");
+				if(StrEqual(info, CHOICE3)) {
+					if(IsClientInGame(client)) {
+						GivePlayerItem(client, "weapon_m4a1");
+					}
 				}
-			}
-			if(StrEqual(info, CHOICE4)) {
-				if(IsClientInGame(client)) {
-					GivePlayerItem(client, "weapon_awp");
+				if(StrEqual(info, CHOICE4)) {
+					if(IsClientInGame(client)) {
+						GivePlayerItem(client, "weapon_awp");
+					}
 				}
-			}
-			if(StrEqual(info, CHOICE5)) {
-				if(IsClientInGame(client)) {
-					GivePlayerItem(client, "weapon_p90");
+				if(StrEqual(info, CHOICE5)) {
+					if(IsClientInGame(client)) {
+						GivePlayerItem(client, "weapon_p90");
+					}
 				}
-			}
-			if(StrEqual(info, CHOICE6)) {
-				if(IsClientInGame(client)) {
-					GivePlayerItem(client, "weapon_negev");
+				if(StrEqual(info, CHOICE6)) {
+					if(IsClientInGame(client)) {
+						GivePlayerItem(client, "weapon_negev");
+					}
 				}
-			}
-			if(StrEqual(info, CHOICE7)) {
-				if(IsClientInGame(client)) {
-					GivePlayerItem(client, "weapon_ssg08");
+				if(StrEqual(info, CHOICE7)) {
+					if(IsClientInGame(client)) {
+						GivePlayerItem(client, "weapon_ssg08");
+					}
 				}
 			}
 		}
