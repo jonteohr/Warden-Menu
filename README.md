@@ -11,7 +11,8 @@ Type `sm plugins load cmenu` in the server console and you're done!
 
 ## Dependencies
 This plugin currently only works with [ESK0s Jailbreak Warden](https://forums.alliedmods.net/showthread.php?t=278136) plugin.  
-Make a request and I'll implement other warden plugins aswell.
+Make a request and I'll implement other warden plugins aswell.  
+If you have `sm_cmenu_doors` set to `1` then you will also need [Smart Jail Doors](https://forums.alliedmods.net/showthread.php?p=2306018#post2306018).
 
 ## Features
 The major function this plugin offers is that the warden can choose a special day to play out for the round. Each day has some special server rules that applies in order to make it much more fun for the players!  
@@ -46,6 +47,7 @@ Some of the other entries in the menu include:
 |`sm_cmenu_weapons`|**1**|Add an option for giving the warden a list of weapons via the menu? 0 = Disable. 1 = Enable.|
 |`sm_cmenu_restricted_freeday`|**1**|Add an option for a restricted freeday in the menu? This event uses the same configuration as a normal freeday. 0 = Disable. 1 = Enable.|
 |`sm_cmenu_player_freeday`|**1**|Add an option for giving a specific player a freeday in the menu? 0 = Disable. 1 = Enable.|
+|`sm_cmenu_doors`|**1**|Add an option for opening doors via the menu. 0 = Disable. 1 = Enable|
 
 ## Commands
 | Command   | Description   | Flag     |
@@ -54,6 +56,7 @@ Some of the other entries in the menu include:
 |sm_wmenu   | _Same as above command_| - |
 |sm_noblock | _Toggles noblock_        | - |
 |sm_days    | _Opens the days menu_    | - |
+|sm_open    | _Toggles the cell doors_ | - |
 |sm_abortgames | _Cancels the current game._| b |
 
 ## Translate
@@ -65,7 +68,7 @@ Send me a message on [Steam](https://steamcommunity.com/id/hyprcsgo) or create a
 ```
 /*
 * 
-* INCLUCE FOR THE SOURCEMOD PLUGIN; WARDEN MENU
+* INCLUDE FOR THE SOURCEMOD PLUGIN; WARDEN MENU
 * https://forums.alliedmods.net/showthread.php?t=298907
 * 
 */
