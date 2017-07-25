@@ -20,7 +20,7 @@
 #include <eskojbwarden>
 #undef REQUIRE_PLUGIN
 
-#define VERSION "1.2.4"
+#define VERSION "1.2.5"
 
 #define CHOICE1 "#choice1"
 #define CHOICE2 "#choice2"
@@ -127,7 +127,7 @@ public OnPluginStart() {
 	cvEnableWeapons = CreateConVar("sm_cmenu_weapons", "1", "Add an option for giving the warden a list of weapons via the menu?\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvRestFreeday = CreateConVar("sm_cmenu_restricted_freeday", "1", "Add an option for a restricted freeday in the menu?\nThis event uses the same configuration as a normal freeday.\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	cvEnablePlayerFreeday = CreateConVar("sm_cmenu_player_freeday", "1", "Add an option for giving a specific player a freeday in the menu?\n0 = Disable.\n1 = Enable.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	cvEnableDoors = CreateConVar("sm_cmenu_doors", "1", "Add an option for opening doors via the menu.\n0 = Disable.\n1 = Enable", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	cvEnableDoors = CreateConVar("sm_cmenu_doors", "1", "Add an option for opening doors via the menu and command.\n0 = Disable.\n1 = Enable", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	
 	noblock = FindConVar("mp_solid_teammates");
 	
@@ -136,7 +136,10 @@ public OnPluginStart() {
 	RegConsoleCmd("sm_wmenu", sm_cmenu);
 	RegConsoleCmd("sm_noblock", sm_noblock);
 	RegConsoleCmd("sm_days", sm_days);
-	RegConsoleCmd("sm_open", sm_open);
+	
+	if(cvEnableDoors.IntValue == 1) {
+		RegConsoleCmd("sm_open", sm_open);
+	}
 	
 	//HookEvent("player_hurt", OnPlayerHurt);
 	HookEvent("player_death", OnPlayerDeath);
