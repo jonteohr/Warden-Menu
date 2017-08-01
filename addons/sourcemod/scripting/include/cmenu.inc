@@ -10,6 +10,26 @@
 #define cmenuincluded
 
 /**
+* Called when a warden opens the warden menu. Also called when a player becomes a warden if sm_cmenu_auto_open is set to 1.
+*/
+forward void OnCMenuOpened(int client);
+
+/**
+* Called when an event day is created.
+*/
+forward void OnEventDayCreated();
+
+/**
+* Called when an event day is aborted.
+*/
+forward void OnEventDayAborted();
+
+/**
+* Called when Hide and Seek is won.
+*/
+forward void OnHnsOver();
+
+/**
 * Check if there is a event day currently active.
 * 
 * @return     true if yes

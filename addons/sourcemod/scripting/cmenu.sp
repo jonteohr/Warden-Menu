@@ -141,7 +141,6 @@ public OnPluginStart() {
 		RegConsoleCmd("sm_open", sm_open);
 	}
 	
-	//HookEvent("player_hurt", OnPlayerHurt);
 	HookEvent("player_death", OnPlayerDeath);
 	HookEvent("round_start", OnRoundStart, EventHookMode_PostNoCopy);
 	
@@ -255,80 +254,94 @@ public void EJBW_OnWardenDeath(int client) {
 }
 
 public Action sm_open(int client, int args) {
-	if(IsClientInGame(client) || EJBW_IsClientWarden(client)) {
-		SJD_ToggleDoors();
-		CPrintToChat(client, "%s %t", cmenuPrefix, "Doors Opened");
-	} else {
+	if(!EJBW_IsClientWarden(client)) {
 		CPrintToChat(client, "%s %t", cmenuPrefix, "Not Warden");
+		return Plugin_Handled;
 	}
+	
+	SJD_ToggleDoors();
+	CPrintToChat(client, "%s %t", cmenuPrefix, "Doors Opened");
+	
+	return Plugin_Handled;
 }
 
 public Action sm_cmenu(int client, int args) {
 	
-	if(IsClientInGame(client)) {
-		if(GetClientTeam(client) == CS_TEAM_CT) {
-			if(IsPlayerAlive(client)) {
-				if(EJBW_IsClientWarden(client)) {
-					
-					openMenu(client);
-					
-				} else {
-					error(client, 0);
-				}
-			} else {
-				error(client, 1);
-			}
-		} else {
-			error(client, 2);
-		}
+	if(!IsClientInGame(client)) {
+		return Plugin_Handled;
 	}
+	
+	if(GetClientTeam(client) != CS_TEAM_CT) {
+		error(client, 2);
+		return Plugin_Handled;
+	}
+	
+	if(IsPlayerAlive(client)) {
+		error(client, 1);
+		return Plugin_Handled;
+	}
+	
+	if(EJBW_IsClientWarden(client)) {
+		error(client, 0);
+		return Plugin_Handled;
+	}
+	
+	openMenu(client);
 	
 	return Plugin_Handled;
 }
 
 public Action sm_abortgames(int client, int args) {
 	
-	if(IsGameActive) {
-		CPrintToChatAll("%s %t", cmenuPrefix, "Admin Aborted", client);
-		abortGames();
-	} else {
+	if(!IsGameActive) {
 		CPrintToChat(client, "%s %t", cmenuPrefix, "Admin Abort Denied");
+		return Plugin_Handled;
 	}
+	
+	CPrintToChatAll("%s %t", cmenuPrefix, "Admin Aborted", client);
+	abortGames();
 	
 	return Plugin_Handled;
 }
 
 public Action sm_noblock(int client, int args) {
-	if(IsClientInGame(client)) {
-		if(GetClientTeam(client) == CS_TEAM_CT) {
-			if(IsPlayerAlive(client)) {
-				if(EJBW_IsClientWarden(client)) {
-					toggleNoblock();
-				} else {
-					error(client, 0);
-				}
-			} else {
-				error(client, 1);
-			}
-		} else {
-			error(client, 2);
-		}
+	if(!IsClientInGame(client)) {
+		return Plugin_Handled;
 	}
+	
+	if(GetClientTeam(client) != CS_TEAM_CT) {
+		error(client, 2);
+		return Plugin_Handled;
+	}
+	
+	if(!IsPlayerAlive(client)) {
+		error(client, 1);
+		return Plugin_Handled;
+	}
+	
+	if(!EJBW_IsClientWarden(client)) {
+		error(client, 0);
+		return Plugin_Handled;
+	}
+	
+	toggleNoblock();
 	
 	return Plugin_Handled;
 }
 
 public Action sm_days(int client, int args) {
 	
-	if(IsClientInGame(client) && GetClientTeam(client) == CS_TEAM_CT) {
-		if(EJBW_IsClientWarden(client)) {
-			openDaysMenu(client);
-		} else {
-			error(client, 0);
-		}
-	} else {
+	if(!IsClientInGame(client) && GetClientTeam(client) != CS_TEAM_CT) {
 		CPrintToChat(client, "%s %t", cmenuPrefix, "Neither alive or ct");
+		return Plugin_Handled;
 	}
+	
+	if(!EJBW_IsClientWarden(client)) {
+		error(client, 0);
+		return Plugin_Handled;
+	}
+	
+	openDaysMenu(client);
 	
 	return Plugin_Handled;
 }
@@ -968,16 +981,16 @@ public void OnHnsOver() {
 }
 
 public Action HnSInfo(Handle timer) {
-	if(IsHnsActive()) {
-		char msg1[64];
-		Format(msg1, sizeof(msg1), "%t", "Contesters Left", aliveTerrorists);
-		
-		char msg2[64];
-		Format(msg2, sizeof(msg2), "%t", "HnS Winners Info", hnsWinners);
-		
-		PrintHintTextToAll("%s\n%s", msg1, msg2);
-		return Plugin_Continue;
-	}
+	if(!IsHnsActive())
+		return Plugin_Handled;
+	
+	char msg1[64];
+	Format(msg1, sizeof(msg1), "%t", "Contesters Left", aliveTerrorists);
+	
+	char msg2[64];
+	Format(msg2, sizeof(msg2), "%t", "HnS Winners Info", hnsWinners);
+	
+	PrintHintTextToAll("%s\n%s", msg1, msg2);
 	
 	return Plugin_Continue;
 }
