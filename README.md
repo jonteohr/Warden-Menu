@@ -1,3 +1,5 @@
+## Development on this version has been moved to [This repo](https://github.com/condolent/Better-Warden/)!!
+
 # Warden-Menu [![Build Status](https://travis-ci.org/condolent/Warden-Menu.svg?branch=master)](https://travis-ci.org/condolent/Warden-Menu)
 Sourcemod plugin for Jailbreak servers. Giving wardens a special menu to execute games with specific game-rules.  
 [AlliedModders](https://forums.alliedmods.net/showthread.php?t=298907)
